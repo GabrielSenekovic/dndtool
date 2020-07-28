@@ -154,6 +154,7 @@
     <ClCompile Include="dndtool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GabNubUtilities.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

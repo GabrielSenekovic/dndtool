@@ -2846,6 +2846,7 @@ namespace olc
 			WNDCLASS wc;
 			wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 			wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+			ShowCursor(false);
 			wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 			wc.hInstance = GetModuleHandle(nullptr);
 			wc.lpfnWndProc = olc_WindowEvent;
