@@ -5,11 +5,15 @@
 
 class DnDTool : public olc::PixelGameEngine
 {
+	enum DrawMode
+	{
+		DRAWMODE_DRAW,DRAWMODE_ERASE,DRAWMODE_FILL
+	};
 	enum InteractionMode 
 	{
-		MOVE, DRAW, ERASE, MEASURE
+		MOVE, DRAW, MEASURE
 	};
-	InteractionMode interactionMode = InteractionMode::ERASE;
+	InteractionMode interactionMode = InteractionMode::MOVE;
 
 	struct map
 	{
@@ -56,55 +60,59 @@ class DnDTool : public olc::PixelGameEngine
 
 	std::vector<map> maps;
 	std::vector<olc::Decal*> backgrounds;
-	olc::Sprite* fogOfWar;
+	olc::Sprite* fogOfWarSprite = nullptr;
+	olc::Decal* fogOfWarDecal = nullptr;
 	std::vector<olc::Decal*> icons;
 
 	std::vector<olc::Decal*> cursors;
 	std::vector<token> NPCs;
 	token* heldToken = nullptr;
 
-	olc::Decal* gridTile;
-	int commonDivisorIndex = 9;
+	olc::Decal* gridTile = nullptr;
+	int commonDivisorIndex = 8;
 	olc::Pixel gridColor = olc::WHITE;
 
 	Gdiplus::Bitmap* iconMask = nullptr;
 	Gdiplus::Bitmap* eraserMask = nullptr;
 
-	int BackgroundLayer = 1; 
+	olc::vf2d zoom = { 1,1 };
+
+	olc::Decal* UIBorder = nullptr;
+	olc::vf2d UIoffset = { 0,0 }; //how offset the entire image is due to the UI
 
 	olc::vf2d selectedTile = { 0,0 };
 	int currentMap = 0;
 	public:
-		float width = 1920.0f * 0.4f;
-		float height = 1080.0f * 0.4f;
+		float width = 1920.0f * 0.3f; //4
+		float height = 1080.0f * 0.3f;
 	bool OnUserCreate()override
 	{
-		loadDecals();
-		loadPlayers();
-		constructMaps();
+		LoadDecals();
+		LoadPlayers();
+		ConstructMaps();
 
 		return true;
 	}
-	void loadDecals()
+	void LoadDecals()
 	{
 		gridTile = new olc::Decal(new olc::Sprite("./Assets/Tile.png"));
 		backgrounds.push_back(new olc::Decal(new olc::Sprite("./Assets/1.png")));
+		UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI_Border.png"));
 
 		iconMask = Gdiplus::Bitmap::FromFile(olc::ConvertS2W("./Assets/Mask.png").c_str());
 		eraserMask = Gdiplus::Bitmap::FromFile(olc::ConvertS2W("./Assets/Eraser.png").c_str());
 
-		cursors.push_back(new olc::Decal(new olc::Sprite("./Assets/Cursor_Hover.png")));
-		cursors.push_back(new olc::Decal(new olc::Sprite("./Assets/Cursor_Grab.png")));
-		cursors.push_back(new olc::Decal(new olc::Sprite("./Assets/Cursor_Grabbable.png")));
-
-		cursors.push_back(new olc::Decal(new olc::Sprite("./Assets/Cursor_Draw.png")));
-		cursors.push_back(new olc::Decal(new olc::Sprite("./Assets/Cursor_Eraser.png")));
+		std::string cursor_paths[5] = { "./Assets/Cursor_Hover.png", "./Assets/Cursor_Grab.png", "./Assets/Cursor_Grabbable.png", "./Assets/Cursor_Draw.png" , "./Assets/Cursor_Eraser.png" };
+		for (int i = 0; i < 5; i++)
+		{
+			cursors.push_back(new olc::Decal(new olc::Sprite(cursor_paths[i])));
+		}
 		
 		olc::Sprite* sprite = new olc::Sprite("./Assets/Test.png");
 		MaskSprite(sprite);
 		icons.push_back(new olc::Decal(sprite));
 	}
-	void loadPlayers()
+	void LoadPlayers()
 	{
 		NPCs.push_back(token(icons[0], { 0,0 }, olc::WHITE, "Isk"));
 		NPCs.push_back(token(icons[0], { 1,0 }, olc::WHITE, "Cinder"));
@@ -114,35 +122,33 @@ class DnDTool : public olc::PixelGameEngine
 	}
 	void MaskSprite(olc::Sprite* sprite)
 	{
-		for (int i = 0; i < sprite->width; i++)
+		for (size_t i = 0; i < sprite->width * sprite->height; i++)
 		{
-			for (int j = 0; j < sprite->height; j++)
-			{
-				Gdiplus::Color c;
-				iconMask->GetPixel(i, j, &c);
-				olc::Pixel pixel = olc::Pixel(
-					sprite->GetPixel({ i,j }).r,
-					sprite->GetPixel({ i,j }).g,
-					sprite->GetPixel({ i,j }).b,
-					c.GetAlpha());
-				sprite->SetPixel(i, j, pixel);
-			}
+			Gdiplus::Color c; int x = (int)i % sprite->width; int y = (int)i / sprite->width;
+			iconMask->GetPixel(x, y, &c);
+			olc::Pixel pixel = olc::Pixel(
+				sprite->GetPixel({ x, y }).r,
+				sprite->GetPixel({ x, y }).g,
+				sprite->GetPixel({ x, y }).b,
+				c.GetAlpha());
+			sprite->SetPixel(x, y, pixel);
 		}
 	}
-	void constructMaps()
+	void ConstructMaps()
 	{
-		fogOfWar = new olc::Sprite(width, height);
-		for (int x = 0; x < width; x++)
-		{
-			for (int y = 0; y < height; y++)
-			{
-				fogOfWar->SetPixel({ x,y }, olc::BLANK);
-			}
-		}
+		fogOfWarSprite = new olc::Sprite(width, height);
+		FillFog(olc::BLANK);
 		maps =
 		{
 			map("MapName", backgrounds[0], std::vector<map::link> { map::link("Hello", {5,5}) }, 1)
 		};
+	}
+	void FillFog(olc::Pixel color)
+	{
+		for (size_t i = 0; i < width * height; i++)
+		{
+			fogOfWarSprite->SetPixel({ (int)i % (int)width, (int)i / (int)width }, color);
+		}
 	}
 	bool OnUserUpdate(float fElepsedTime)override
 	{
@@ -159,19 +165,23 @@ class DnDTool : public olc::PixelGameEngine
 		}
 		if (GetMouse(0).bHeld)
 		{
-			switch (interactionMode)
+			if (interactionMode == InteractionMode::DRAW)
 			{
-				case InteractionMode::ERASE:
-				{
-					Erase(); break;
-				}
-				case InteractionMode::DRAW:
-				{
-					DrawFog(); break;
-				}
+				EraseDraw(DrawMode::DRAWMODE_DRAW);
+			}
+		}
+		if (GetMouse(1).bHeld)
+		{
+			if (interactionMode == InteractionMode::DRAW)
+			{
+				EraseDraw(DrawMode::DRAWMODE_ERASE);
 			}
 		}
 		if (GetKey(olc::Q).bPressed)
+		{
+			UIoffset = { 32.0f * (UIoffset.x == 0) * width / UIBorder->sprite->width, 16.0f * (UIoffset.y == 0) * height / UIBorder->sprite->height };
+		}
+		if (GetKey(olc::W).bPressed)
 		{
 			gridColor = gridColor == olc::WHITE ? olc::BLACK : olc::WHITE;
 		}
@@ -187,10 +197,6 @@ class DnDTool : public olc::PixelGameEngine
 			}
 			if (GetKey(olc::E).bPressed)
 			{
-				interactionMode = InteractionMode::ERASE;
-			}
-			if (GetKey(olc::R).bPressed)
-			{
 				interactionMode = InteractionMode::DRAW;
 			}
 			if (GetKey(olc::M).bPressed)
@@ -203,35 +209,22 @@ class DnDTool : public olc::PixelGameEngine
 			}
 			if (GetMouse(0).bPressed && interactionMode == InteractionMode::DRAW)
 			{
-				for (int x = 0; x < width; x++)
-				{
-					for (int y = 0; y < height; y++)
-					{
-						fogOfWar->SetPixel({ x,y }, olc::BLACK);
-					}
-				}
+				FillFog(olc::BLACK);
 			}
+		}
+		if (GetKey(olc::M).bHeld)
+		{
+			zoom.x += 0.001f;
+			zoom.y += 0.001f;
+		}
+		if (GetKey(olc::N).bHeld && zoom.x > 1)
+		{
+			zoom.x -= 0.001f;
+			zoom.y -= 0.001f;
 		}
 		return true;
 	}
-	void Erase()
-	{
-		for (int i = GetMouseX(); i < GetMouseX()+eraserMask->GetWidth(); i++)
-		{
-			for (int j = GetMouseY(); j < GetMouseY()+eraserMask->GetHeight(); j++)
-			{
-				Gdiplus::Color c;
-				eraserMask->GetPixel(i - GetMouseX(), j - GetMouseY(), &c);
-				olc::Pixel pixel = olc::Pixel(
-					0,
-					0,
-					0,
-					c.GetA() & fogOfWar->GetPixel(i,j).a);
-				fogOfWar->SetPixel(i, j, pixel);
-			}
-		}
-	}
-	void DrawFog()
+	void EraseDraw(DrawMode mode)
 	{
 		for (int i = GetMouseX(); i < GetMouseX() + eraserMask->GetWidth(); i++)
 		{
@@ -239,20 +232,35 @@ class DnDTool : public olc::PixelGameEngine
 			{
 				Gdiplus::Color c;
 				eraserMask->GetPixel(i - GetMouseX(), j - GetMouseY(), &c);
-				olc::Pixel pixel = olc::Pixel(
-					0,
-					0,
-					0,
-					~c.GetA() | fogOfWar->GetPixel(i, j).a);
-				fogOfWar->SetPixel(i, j, pixel);
+				olc::Pixel pixel;
+				switch (mode)
+				{
+					case DrawMode::DRAWMODE_ERASE:
+					{
+						pixel = olc::Pixel(
+							0,
+							0,
+							0,
+							c.GetA() & fogOfWarSprite->GetPixel(i, j).a); break;
+					}
+					case DrawMode::DRAWMODE_DRAW:
+					{
+						pixel = olc::Pixel(
+							0,
+							0,
+							0,
+							~c.GetA() | fogOfWarSprite->GetPixel(i, j).a); break;
+					}
+				}
+				fogOfWarSprite->SetPixel(i, j, pixel);
 			}
 		}
 	}
 	void PickUpToken()
 	{
-		float modifier = gnu::findCommonDivisors(width, height)[commonDivisorIndex];
+		float commonDivisor = gnu::findCommonDivisors(width, height)[commonDivisorIndex];
 		float divisor = 256;
-		olc::vf2d MousePositionInXY = { std::floor((GetMouseX() * divisor) / (modifier * gridTile->sprite->width)) , std::floor((GetMouseY() * divisor) / (modifier * gridTile->sprite->height)) };
+		olc::vf2d MousePositionInXY = { std::floor((GetMouseX() * divisor) / (commonDivisor * gridTile->sprite->width)) , std::floor((GetMouseY() * divisor) / (commonDivisor * gridTile->sprite->height)) };
 		for (int i = 0; i < NPCs.size(); i++)
 		{
 			if (NPCs[i].position.x == MousePositionInXY.x && NPCs[i].position.y == MousePositionInXY.y)
@@ -265,10 +273,7 @@ class DnDTool : public olc::PixelGameEngine
 				}
 				else
 				{
-					token temp = NPCs[i]; //hold the token in the slot
-					temp.position = { -1, -1 };
-					NPCs[i] = *heldToken; //put held token in slot
-					*heldToken = temp; 
+					std::swap(NPCs[i], *heldToken);
 					NPCs[i].position = { MousePositionInXY.x,MousePositionInXY.y }; //Instead of making the icon invisible, I move it offscreen
 				}
 				return;
@@ -283,34 +288,48 @@ class DnDTool : public olc::PixelGameEngine
 	}
 	void DrawScene()
 	{
-		Clear(olc::BLANK);
-		float scale = (width / maps[currentMap].background->sprite->width);
-		DrawDecal({ 0,0 }, maps[currentMap].background, { scale,scale });
-		float modifier = gnu::findCommonDivisors(width, height)[commonDivisorIndex];
-		float divisor = 256;
-		olc::vf2d MousePositionInXY = { std::floor((GetMouseX() * divisor) / (modifier * gridTile->sprite->width)) , std::floor((GetMouseY() * divisor) / (modifier * gridTile->sprite->height)) };
+		Clear(olc::BLACK);
+		olc::vf2d scaleUIOffset = UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / UIBorder->sprite->width, 32 * height / UIBorder->sprite->height };
+		
+		float scale = maps[currentMap].background->sprite->width > maps[currentMap].background->sprite->height ? (width/ (maps[currentMap].background->sprite->width)) : (height / maps[currentMap].background->sprite->height);
+		float offsetScale = maps[currentMap].background->sprite->width > maps[currentMap].background->sprite->height ? ((width - scaleUIOffset.x) / (maps[currentMap].background->sprite->width)) : ((height - scaleUIOffset.y) / maps[currentMap].background->sprite->height);
+		
+		DrawDecal({ UIoffset.x,UIoffset.y }, maps[currentMap].background, { offsetScale* zoom.x,offsetScale* zoom.y});
+		float scaledWidth = maps[currentMap].background->sprite->width * offsetScale * zoom.x;
+
+		float commonDivisor = gnu::findCommonDivisors(maps[currentMap].background->sprite->width * scale, maps[currentMap].background->sprite->height * scale)[commonDivisorIndex]; float divisor = 256;
+		olc::vf2d MousePositionInXY = { std::floor((GetMouseX() * divisor) / (commonDivisor * gridTile->sprite->width)), std::floor((GetMouseY() * divisor) / (commonDivisor * gridTile->sprite->height))};
 		if (interactionMode == InteractionMode::MOVE || interactionMode == InteractionMode::MEASURE)
 		{
-			DrawGrid(divisor, modifier, MousePositionInXY);
+			DrawGrid(divisor, commonDivisor, MousePositionInXY, scale, maps[currentMap].background->sprite->width * offsetScale);
 		}
-		DrawTokens(divisor, modifier, MousePositionInXY);
-		DrawHUD(divisor, modifier, MousePositionInXY);
+		DrawTokens(divisor, commonDivisor, MousePositionInXY);
+		DrawLinks(divisor, commonDivisor, MousePositionInXY);
 		DisplayFog();
-		DrawCursor(divisor, modifier, MousePositionInXY);
-	}
-	void DrawGrid(float divisor, float modifier, olc::vf2d mousePosition)
-	{
-		for (int i = 0; i < (width / modifier); i++)
+		DrawCursor(divisor, commonDivisor, MousePositionInXY);
+		if (UIoffset.x > 0)
 		{
-			for (int j = 0; j < (height / modifier); j++)
-			{
-				bool temp = ((mousePosition.x == i) && (mousePosition.y == j));
-				olc::Pixel tint = temp ? olc::RED : gridColor;
-				DrawDecal({
-					(float)i * gridTile->sprite->width * modifier / divisor,
-					(float)j * gridTile->sprite->height * modifier / divisor },
-					gridTile, { modifier / divisor, modifier / divisor }, tint);
-			}
+			DrawDecal({ 0,0 }, UIBorder, {width/UIBorder->sprite->width, height/UIBorder->sprite->height });
+			DisplayHUD();
+		}
+	}
+	void DrawGrid(float divisor, float commonDivisor, olc::vf2d mousePosition, float scale, float mapWidthScaledByUI)
+	{
+		float tileableSize = commonDivisor / divisor;
+		for (size_t i = 0; i < (maps[currentMap].background->sprite->width * scale / commonDivisor) * (maps[currentMap].background->sprite->height * scale / commonDivisor); i++)
+		{
+			float amountOfColumns = scale / commonDivisor;
+			int gridWidth = (maps[currentMap].background->sprite->width * amountOfColumns);
+			int x = i % gridWidth; 
+			int y = i / gridWidth;
+			bool isThisHighlighted = ((mousePosition.x == x && (mousePosition.y == y)));
+			float adjustedTileWidth = (mapWidthScaledByUI / gridWidth)/tileableSize;
+			float tileWidthRatio = gridTile->sprite->width / adjustedTileWidth;
+			olc::Pixel tint = isThisHighlighted ? olc::RED : gridColor;
+			DrawDecal({
+				(float)x * gridTile->sprite->width * tileableSize * zoom.x / tileWidthRatio + UIoffset.x,
+				(float)y * gridTile->sprite->height * tileableSize * zoom.y / tileWidthRatio + UIoffset.y},
+				gridTile, { tileableSize * zoom.x / tileWidthRatio, tileableSize * zoom.y / tileWidthRatio}, tint);
 		}
 	}
 	void DrawTokens(float divisor, float modifier, olc::vf2d mousePosition)
@@ -321,16 +340,16 @@ class DnDTool : public olc::PixelGameEngine
 			float scaleShrinker = 0.75f; //to make sure the token isnt the same size as the tile, its a bit smaller
 			scale *= scaleShrinker;
 			float centeringModifier = ((gridTile->sprite->width * modifier / divisor) - ((gridTile->sprite->width * modifier / divisor)*scaleShrinker))/2;
-			olc::vf2d position = { NPCs[i].position.x * gridTile->sprite->width * modifier / divisor + centeringModifier, NPCs[i].position.y * gridTile->sprite->height * modifier / divisor + centeringModifier};
-			DrawDecal(position, NPCs[i].icon, {scale * modifier / divisor, scale *modifier / divisor}, NPCs[i].tint);
+			olc::vf2d position = {( NPCs[i].position.x * gridTile->sprite->width * modifier / divisor + centeringModifier)*zoom.x + UIoffset.x, (NPCs[i].position.y * gridTile->sprite->height * modifier / divisor + centeringModifier)*zoom.y + UIoffset.y};
+			DrawDecal(position, NPCs[i].icon, {scale * modifier / divisor * zoom.x, scale *modifier / divisor * zoom.y}, NPCs[i].tint);
 			if (mousePosition.x == NPCs[i].position.x && mousePosition.y == NPCs[i].position.y)
 			{
 				//if this NPC is highlighted
-				DrawStringDecal({ position.x, position.y + centeringModifier * 6 }, NPCs[i].name, olc::WHITE);
+				DrawStringDecal({ position.x, position.y + centeringModifier * 6 }, NPCs[i].name, olc::WHITE, { zoom.x, zoom.y });
 			}
 		}
 	}
-	void DrawHUD(float divisor, float modifier, olc::vf2d mousePosition)
+	void DrawLinks(float divisor, float modifier, olc::vf2d mousePosition)
 	{
 		for (unsigned int i = 0; i < maps[currentMap].links.size(); i++)
 		{
@@ -339,12 +358,12 @@ class DnDTool : public olc::PixelGameEngine
 			olc::vf2d position = { maps[currentMap].links[i].position.x * gridTile->sprite->width * modifier / divisor, maps[currentMap].links[i].position.y * gridTile->sprite->height * modifier / divisor + gridTile->sprite->height * modifier / divisor * 0.8f };
 			DrawStringDecal(position, maps[currentMap].links[i].mapIdentifier, tint);
 		}
-		//DrawStringDecal({ 60,10 }, "X: " + std::to_string((int)mousePosition.x) + " Y: " +  std::to_string((int)mousePosition.y));
 	}
 	void DrawCursor(float divisor, float modifier, olc::vf2d mousePosition)
 	{
 		bool grabbable = false;
 		olc::vf2d scale = { 0.5f,0.5f };
+		olc::vf2d position = { GetMouseX() * zoom.x, GetMouseY() * zoom.y };
 		for (int i = 0; i < NPCs.size(); i++)
 		{
 			if (NPCs[i].position.x == mousePosition.x && NPCs[i].position.y == mousePosition.y)
@@ -358,7 +377,7 @@ class DnDTool : public olc::PixelGameEngine
 			{
 				if (grabbable && heldToken == nullptr)
 				{
-					DrawDecal({ (float)GetMouseX(), (float)GetMouseY() }, cursors[2], scale);
+					DrawDecal(position, cursors[2], scale);
 				}
 				else if (heldToken != nullptr)
 				{
@@ -366,31 +385,48 @@ class DnDTool : public olc::PixelGameEngine
 					float scaleShrinker = 0.75f; //to make sure the token isnt the same size as the tile, its a bit smaller
 					tokenScale *= scaleShrinker;
 					DrawDecal({ (float)GetMouseX() - 10, (float)GetMouseY() -10}, heldToken->icon, { tokenScale * modifier / divisor, tokenScale * modifier / divisor }, heldToken->tint);
-					DrawDecal({ (float)GetMouseX(), (float)GetMouseY() }, cursors[1], scale);
+					DrawDecal(position, cursors[1], scale);
 				}
 				else
 				{
-					DrawDecal({ (float)GetMouseX(), (float)GetMouseY() }, cursors[0], scale);
+					DrawDecal(position, cursors[0], scale);
 				}
-				break;
-			}
-			case InteractionMode::ERASE:
-			{
-				DrawDecal({ (float)GetMouseX(), (float)GetMouseY() }, cursors[4], scale);
 				break;
 			}
 			case InteractionMode::DRAW:
 			{
-				DrawDecal({ (float)GetMouseX(), (float)GetMouseY() }, cursors[3], scale);
+				int index = GetMouse(1).bHeld ? 4 : 3;
+				DrawDecal(position, cursors[index], scale);
 				break;
 			}
 		}
 	}
 	void DisplayFog()
 	{
-		olc::Decal* temp = new olc::Decal(fogOfWar);
-		DrawDecal({ 0,0 }, temp);
-		//draw a fog of war
+		delete fogOfWarDecal; fogOfWarDecal = nullptr;
+		fogOfWarDecal = new olc::Decal(fogOfWarSprite);
+		DrawDecal({ 0,0 }, fogOfWarDecal);
+	}
+	void DisplayHUD()
+	{
+
+	}
+	void Quit()
+	{
+		for (int i = 0; i < icons.size(); i++)
+		{
+			delete icons[i];
+		}
+		for (int i = 0; i < backgrounds.size(); i++)
+		{
+			delete backgrounds[i];
+		}
+		for (int i = 0; i < cursors.size(); i++)
+		{
+			delete cursors[i];
+		}
+		delete gridTile;
+		delete fogOfWarSprite;
 	}
 };
 
@@ -401,5 +437,6 @@ int main()
 	{
 		dndtool.Start();
 	}
+	dndtool.Quit();
 	return 0;
 }
