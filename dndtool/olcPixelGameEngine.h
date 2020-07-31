@@ -710,6 +710,7 @@ namespace olc
 		void DrawPartialRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale = { 1.0f, 1.0f }, const olc::Pixel& tint = olc::WHITE);
 		// Draws a multiline string as a decal, with tiniting and scaling
 		void DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
+		void DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale, const float spacing); //Gab made this
 		// Draws a single shaded filled rectangle as a decal
 		void FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		// Draws a corner shaded rectangle as a decal
@@ -2160,6 +2161,25 @@ namespace olc
 				int32_t oy = (c - 32) / 16;
 				DrawPartialDecal(pos + spos, fontDecal, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
 				spos.x += 8.0f * scale.x;
+			}
+		}
+	}
+	//I made this one //Gab
+	void PixelGameEngine::DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale, const float spacing)
+	{
+		olc::vf2d spos = { 0.0f, 0.0f };
+		for (auto c : sText)
+		{
+			if (c == '\n')
+			{
+				spos.x = 0; spos.y += 8.0f * scale.y;
+			}
+			else
+			{
+				int32_t ox = (c - 32) % 16;
+				int32_t oy = (c - 32) / 16;
+				DrawPartialDecal(pos + spos, fontDecal, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
+				spos.x += 8.0f + spacing * scale.x;
 			}
 		}
 	}

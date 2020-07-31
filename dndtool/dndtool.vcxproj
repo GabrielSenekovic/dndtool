@@ -129,6 +129,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,6 +157,15 @@
   <ItemGroup>
     <ClInclude Include="GabNubUtilities.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dndtool.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Icons\Icon_256.png" />
+    <Image Include="Assets\Icons\icon_256_Vxu_icon.ico" />
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
