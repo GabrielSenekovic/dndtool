@@ -11,7 +11,10 @@ class DnDTool : public olc::PixelGameEngine
 	};
 	enum InteractionMode 
 	{
-		MOVE, DRAW, MEASURE
+		MOVE, //Pick up and place tokens. Kill or down characters
+		DRAW, //Edit the fog of war
+		MEASURE, //Measure distances between tiles
+		BUILD //Place out and delete tokens and tiles before battle. Tokens are selectable from a list on the side
 	};
 	InteractionMode interactionMode = InteractionMode::MOVE;
 
@@ -49,14 +52,16 @@ class DnDTool : public olc::PixelGameEngine
 		{
 
 		}
-		token(olc::Decal* icon_in, olc::vf2d position_in, olc::Pixel tint_in, std::string name_in)
+		token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::vf2d position_in, olc::Pixel tint_in, std::string name_in)
 		{
-			icon = icon_in;
+			icon = icon_in.second;
+			icon_unmasked = icon_in.first;
 			position = position_in;
 			tint = tint_in;
 			name = name_in;
 		}
 		olc::Decal* icon = nullptr;
+		olc::Decal* icon_unmasked = nullptr;
 		olc::Pixel tint;
 		olc::vf2d position;
 		std::string name;
@@ -81,7 +86,7 @@ class DnDTool : public olc::PixelGameEngine
 
 	std::vector<map> maps;
 	std::vector<olc::Decal*> backgrounds;
-	std::vector<olc::Decal*> icons;
+	std::vector<std::pair<olc::Decal*, olc::Decal*>> icons;
 	std::vector<olc::Decal*> cursors;
 	std::vector<token> NPCs;
 
@@ -97,6 +102,7 @@ class DnDTool : public olc::PixelGameEngine
 	olc::vf2d panOffset = { 0,0 }; //When zoomed in, used to drag the camera around, ie. pan around
 
 	olc::Decal* UIBorder = nullptr;
+	olc::Decal* UIButton = nullptr;
 	olc::vf2d UIoffset = { 0,0 }; //how offset the entire image is due to the UI
 	float scaleUnaffectedByUI = 0;
 	float scaleAffectedByUI = 0;
@@ -122,27 +128,37 @@ class DnDTool : public olc::PixelGameEngine
 		selection = new olc::Decal(new olc::Sprite("./Assets/Selection.png"));
 		backgrounds.push_back(new olc::Decal(new olc::Sprite("./Assets/1.png")));
 		UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI_Border.png"));
+		UIButton = new olc::Decal(new olc::Sprite("./Assets/UI_Button_Background.png"));
 
-		iconMask = Gdiplus::Bitmap::FromFile(olc::ConvertS2W("./Assets/Mask.png").c_str());
+		iconMask = Gdiplus::Bitmap::FromFile(olc::ConvertS2W("./Assets/Mask_100.png").c_str());
 		eraserMask = Gdiplus::Bitmap::FromFile(olc::ConvertS2W("./Assets/Eraser.png").c_str());
 
-		std::string cursor_paths[5] = { "./Assets/Cursor_Hover.png", "./Assets/Cursor_Grab.png", "./Assets/Cursor_Grabbable.png", "./Assets/Cursor_Draw.png" , "./Assets/Cursor_Eraser.png" };
+		std::string cursor_paths[5] = { "Cursor_Hover.png", "Cursor_Grab.png", "Cursor_Grabbable.png", "Cursor_Draw.png" , "Cursor_Eraser.png" };
 		for (int i = 0; i < 5; i++)
 		{
-			cursors.push_back(new olc::Decal(new olc::Sprite(cursor_paths[i])));
+			std::string path = "./Assets/" + cursor_paths[i];
+			cursors.push_back(new olc::Decal(new olc::Sprite(path)));
 		}
 		
-		olc::Sprite* sprite = new olc::Sprite("./Assets/Test.png");
-		MaskSprite(sprite);
-		icons.push_back(new olc::Decal(sprite));
+		std::string mugshot_paths[4] = { "Test.png", "Player_Haiku.png", "Player_Terrahin.png", "Player_Nym.png" };
+		int size = sizeof(mugshot_paths) / sizeof(mugshot_paths[0]);
+		for (int i = 0; i < size; i++)
+		{
+			std::string path = "./Assets/Tokens/" + mugshot_paths[i];
+			olc::Sprite* sprite = new olc::Sprite(path);
+			olc::Decal* unMasked = new olc::Decal(sprite);
+			MaskSprite(sprite);
+			icons.push_back(std::pair<olc::Decal*, olc::Decal*>(unMasked, new olc::Decal(sprite)));
+		}
 	}
 	void LoadPlayers()
 	{
 		NPCs.push_back(token(icons[0], { 0,0 }, olc::WHITE, "Isk"));
 		NPCs.push_back(token(icons[0], { 1,0 }, olc::WHITE, "Cinder"));
-		NPCs.push_back(token(icons[0], { 2,0 }, olc::WHITE, "Tarrehin"));
+		NPCs.push_back(token(icons[2], { 2,0 }, olc::WHITE, "Tarrehin"));
 		NPCs.push_back(token(icons[0], { 3,0 }, olc::WHITE, "Bob"));
-		NPCs.push_back(token(icons[0], { 4,0 }, olc::WHITE, "Nym"));
+		NPCs.push_back(token(icons[3], { 4,0 }, olc::WHITE, "Nym"));
+		NPCs.push_back(token(icons[1], { 5,0 }, olc::WHITE, "Haiku"));
 	}
 	void MaskSprite(olc::Sprite* sprite)
 	{
@@ -279,7 +295,7 @@ class DnDTool : public olc::PixelGameEngine
 				FillFog(olc::BLACK);
 			}
 		}
-		if (GetKey(olc::M).bHeld)
+		/*if (GetKey(olc::M).bHeld)
 		{
 			zoom.x += 0.001f;
 			zoom.y += 0.001f;
@@ -288,7 +304,7 @@ class DnDTool : public olc::PixelGameEngine
 		{
 			zoom.x -= 0.001f;
 			zoom.y -= 0.001f;
-		}
+		}*/
 	}
 	void ToggleUI()
 	{
@@ -404,7 +420,7 @@ class DnDTool : public olc::PixelGameEngine
 			DrawGrid(commonDivisor, scaleUnaffectedByUI, tileWidthRatio, tileableSize, gridWidth);
 		}
 		DrawTokens(tileWidthRatio);
-		DrawLinks(commonDivisor);
+		//DrawLinks(commonDivisor);
 		DisplayFog();
 		if (UIoffset.x > 0)
 		{
@@ -537,9 +553,10 @@ class DnDTool : public olc::PixelGameEngine
 		if (selectedToken.icon != nullptr)
 		{
 			float ratio = (62.0f/selectedToken.icon->sprite->width) * width/UIBorder->sprite->width;
-			DrawDecal({3,12 }, selectedToken.icon, {ratio,ratio});
+			DrawDecal({3,12 }, selectedToken.icon_unmasked, {ratio,ratio});
 			DrawStringDecal({ 3, 64 }, selectedToken.name,olc::WHITE, {0.5f, 0.5f});
 		}
+		DrawDecal({ 564, 11.5f }, UIButton, { 14.0f / UIButton->sprite->width * width / UIBorder->sprite->width, 14.0f / UIButton->sprite->width * width / UIBorder->sprite->width });
 		DrawStringDecal({ 2,2 }, 
 			"[Grid Coord X: " + std::to_string(GetMousePositionInXY().x) + " Y: " + std::to_string(GetMousePositionInXY().y) + "]"+
 			"[F_Grid Coord X: " + std::to_string(GetMousePositionInXYFloat().x) + " Y: " + std::to_string(GetMousePositionInXYFloat().y) + "]" +
@@ -554,7 +571,8 @@ class DnDTool : public olc::PixelGameEngine
 	{
 		for (size_t i = 0; i < icons.size(); i++)
 		{
-			delete icons[i];
+			delete icons[i].first;
+			delete icons[i].second;
 		}
 		for (size_t i = 0; i < backgrounds.size(); i++)
 		{
