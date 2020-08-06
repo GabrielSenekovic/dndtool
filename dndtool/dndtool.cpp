@@ -82,6 +82,7 @@ class DnDTool : public olc::PixelGameEngine
 	olc::Decal* fogOfWarDecal = nullptr; //Perhaps I only need to draw the sprite if I draw it on a higher layer
 	Gdiplus::Bitmap* eraserMask = nullptr;
 	//MEASURE
+	olc::Decal* measuringLine = nullptr;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::vector<map> maps;
@@ -127,6 +128,7 @@ class DnDTool : public olc::PixelGameEngine
 		gridTile = new olc::Decal(new olc::Sprite("./Assets/Tile.png"));
 		selection = new olc::Decal(new olc::Sprite("./Assets/Selection.png"));
 		backgrounds.push_back(new olc::Decal(new olc::Sprite("./Assets/1.png")));
+		measuringLine = new olc::Decal(new olc::Sprite("./Assets/Measuring_Line.png"));
 		UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI_Border.png"));
 		UIButton = new olc::Decal(new olc::Sprite("./Assets/UI_Button_Background.png"));
 
@@ -140,7 +142,7 @@ class DnDTool : public olc::PixelGameEngine
 			cursors.push_back(new olc::Decal(new olc::Sprite(path)));
 		}
 		
-		std::string mugshot_paths[4] = { "Test.png", "Player_Haiku.png", "Player_Terrahin.png", "Player_Nym.png" };
+		std::string mugshot_paths[5] = { "Test.png", "Player_Haiku.png", "Player_Terrahin.png", "Player_Nym.png", "Player_Bob.png" };
 		int size = sizeof(mugshot_paths) / sizeof(mugshot_paths[0]);
 		for (int i = 0; i < size; i++)
 		{
@@ -156,7 +158,7 @@ class DnDTool : public olc::PixelGameEngine
 		NPCs.push_back(token(icons[0], { 0,0 }, olc::WHITE, "Isk"));
 		NPCs.push_back(token(icons[0], { 1,0 }, olc::WHITE, "Cinder"));
 		NPCs.push_back(token(icons[2], { 2,0 }, olc::WHITE, "Tarrehin"));
-		NPCs.push_back(token(icons[0], { 3,0 }, olc::WHITE, "Bob"));
+		NPCs.push_back(token(icons[4], { 3,0 }, olc::WHITE, "Bob"));
 		NPCs.push_back(token(icons[3], { 4,0 }, olc::WHITE, "Nym"));
 		NPCs.push_back(token(icons[1], { 5,0 }, olc::WHITE, "Haiku"));
 	}
@@ -262,9 +264,9 @@ class DnDTool : public olc::PixelGameEngine
 		}
 		if (GetKey(olc::Q).bPressed)
 		{
-			ToggleUI();
+			//ToggleUI();
 		}
-		if (GetKey(olc::W).bPressed)
+		if (GetKey(olc::A).bPressed)
 		{
 			gridColor = gridColor == olc::WHITE ? olc::BLACK : olc::WHITE;
 		}
@@ -401,7 +403,6 @@ class DnDTool : public olc::PixelGameEngine
 	}
 	void DrawScene()
 	{
-		Clear(olc::BLACK);
 		olc::vf2d scaleUIOffset = UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / UIBorder->sprite->width, 32 * height / UIBorder->sprite->height };
 		
 		scaleAffectedByUI = maps[currentMap].background->sprite->width > maps[currentMap].background->sprite->height ? ((width - scaleUIOffset.x) / (maps[currentMap].background->sprite->width)) : ((height - scaleUIOffset.y) / maps[currentMap].background->sprite->height);
