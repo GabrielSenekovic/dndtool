@@ -153,8 +153,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dndtool.cpp" />
+    <ClCompile Include="input.cpp" />
+    <ClCompile Include="loading.cpp" />
+    <ClCompile Include="middlehand.cpp" />
+    <ClCompile Include="rendering.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dndtool.h" />
     <ClInclude Include="GabNubUtilities.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
     <ClInclude Include="resource.h" />
