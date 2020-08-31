@@ -1,0 +1,5 @@
+mind		time		entropy		complexity	matter		word
+genius		chronos		collapse	intricacy	thing		speech
+psyche		age		decay		convolution	substance	communication
+reflection	passing		destruction			material
+		continuation					

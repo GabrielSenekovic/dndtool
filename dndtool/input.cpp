@@ -105,6 +105,14 @@ void DnDTool::CheckInput()
 		zoom.y -= 0.001f;
 	}*/
 }
+
+void DnDTool::FillFog(olc::Pixel color)
+{
+	for (size_t i = 0; i < width * height; i++)
+	{
+		fogOfWarSprite->SetPixel({ (int)i % (int)width, (int)i / (int)width }, color);
+	}
+}
 void DnDTool::EraseDraw(DrawMode mode)
 {
 	for (size_t i = GetMouseX(); i < GetMouseX() + eraserMask->GetWidth(); i++)
@@ -137,10 +145,7 @@ void DnDTool::EraseDraw(DrawMode mode)
 		}
 	}
 }
-void DnDTool::ToggleUI()
-{
-	UIoffset = { 70.0f * (UIoffset.x == 0) * width / UIBorder->sprite->width, 16.0f * (UIoffset.y == 0) * height / UIBorder->sprite->height };
-}
+
 void DnDTool::PickUpToken()
 {
 	olc::vf2d MousePositionInXY = GetMousePositionInXY();
@@ -176,10 +181,8 @@ void DnDTool::PickUpToken()
 		heldToken = nullptr;
 	}
 }
-void DnDTool::FillFog(olc::Pixel color)
+
+void DnDTool::ToggleUI()
 {
-	for (size_t i = 0; i < width * height; i++)
-	{
-		fogOfWarSprite->SetPixel({ (int)i % (int)width, (int)i / (int)width }, color);
-	}
+	UIoffset = { 70.0f * (UIoffset.x == 0) * width / UIBorder->sprite->width, 16.0f * (UIoffset.y == 0) * height / UIBorder->sprite->height };
 }

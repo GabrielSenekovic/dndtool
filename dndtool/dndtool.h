@@ -38,12 +38,37 @@ class DnDTool : public olc::PixelGameEngine
 		int tileScale;
 	public:
 		std::string mapIdentifier;
+		int commonDivisorIndex = 0;
+
+		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in)
+		{
+			mapIdentifier = mapIdentifier_in;
+			links = {};
+			background = background_in;
+			tileScale = tileScale_in;
+		}
+		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in, int commonDivisor_in)
+		{
+			mapIdentifier = mapIdentifier_in;
+			links = {};
+			background = background_in;
+			tileScale = tileScale_in;
+			commonDivisorIndex = commonDivisor_in;
+		}
 		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in)
 		{
 			mapIdentifier = mapIdentifier_in;
 			links = links_in;
 			background = background_in;
 			tileScale = tileScale_in;
+		}
+		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in)
+		{
+			mapIdentifier = mapIdentifier_in;
+			links = links_in;
+			background = background_in;
+			tileScale = tileScale_in;
+			commonDivisorIndex = commonDivisor_in;
 		}
 	};
 	struct token
@@ -93,7 +118,7 @@ class DnDTool : public olc::PixelGameEngine
 
 	olc::Decal* gridTile = nullptr;
 	int tileDivisor = 256;
-	int commonDivisorIndex = 8;
+	int commonDivisorIndex = 8; //arbitrary number. This must be changed
 	olc::Pixel gridColor = olc::WHITE;
 	float commonDivisor = 0;
 
