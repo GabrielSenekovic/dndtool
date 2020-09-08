@@ -4,6 +4,15 @@ void DnDTool::CheckInput()
 {
 	if (GetMouse(0).bPressed)
 	{
+		olc::vf2d UIscale = { width / screens[currentUI].UIBorder->sprite->width, height / screens[currentUI].UIBorder->sprite->height };
+		for (int i = 0; i < screens[currentUI].modeButtons.size(); i++)
+		{
+			if (GetMouseX() > screens[currentUI].modeButtons[i].position.x * UIscale.x && GetMouseX() < (screens[currentUI].modeButtons[i].position.x + screens[currentUI].modeButtons[i].Width()) * UIscale.x &&
+				GetMouseY() > screens[currentUI].modeButtons[i].position.y * UIscale.y && GetMouseY() < (screens[currentUI].modeButtons[i].position.y + screens[currentUI].modeButtons[i].Height()) * UIscale.y)
+			{
+				screens[currentUI].modeButtons[i].OnPress();
+			}
+		}
 		switch (interactionMode)
 		{
 			case InteractionMode::MOVE:
@@ -93,6 +102,10 @@ void DnDTool::CheckInput()
 		{
 			FillFog(olc::BLACK);
 		}
+	}
+	if (GetKey(olc::ESCAPE).bPressed)
+	{
+		playing = false;
 	}
 	/*if (GetKey(olc::M).bHeld)
 	{
@@ -184,10 +197,10 @@ void DnDTool::PickUpToken()
 
 void DnDTool::ToggleUI()
 {
-	UIoffset = { 70.0f * (UIoffset.x == 0) * width / UIBorder->sprite->width, 16.0f * (UIoffset.y == 0) * height / UIBorder->sprite->height };
-	scaleUIOffset = UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / UIBorder->sprite->width, 32 * height / UIBorder->sprite->height };
+	screens[currentUI].UIoffset = { 70.0f * (screens[currentUI].UIoffset.x == 0) * width / screens[currentUI].UIBorder->sprite->width, 16.0f * (screens[currentUI].UIoffset.y == 0) * height / screens[currentUI].UIBorder->sprite->height };
+	screens[currentUI].scaleUIOffset = screens[currentUI].UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / screens[currentUI].UIBorder->sprite->width, 32 * height / screens[currentUI].UIBorder->sprite->height };
 
 	scaleAffectedByUI = maps[currentMap].Width() > maps[currentMap].Height() ? //Is the width bigger than the height?
-		((width - scaleUIOffset.x) / (maps[currentMap].Height())) : //If its wider than tall, then scale based on width
-		((height - scaleUIOffset.y) / maps[currentMap].Height()); //Otherwise, scale by height 
+		((width - screens[currentUI].scaleUIOffset.x) / (maps[currentMap].Height())) : //If its wider than tall, then scale based on width
+		((height - screens[currentUI].scaleUIOffset.y) / maps[currentMap].Height()); //Otherwise, scale by height 
 }

@@ -2,7 +2,7 @@
 
 void DnDTool::RenderAll()
 {
-	DrawDecal({ UIoffset.x,UIoffset.y }, maps[currentMap].background, { scaleAffectedByUI * zoom.x,scaleAffectedByUI * zoom.y}); //Draws the background
+	DrawDecal({ screens[currentUI].UIoffset.x,screens[currentUI].UIoffset.y }, maps[currentMap].background, { scaleAffectedByUI * zoom.x,scaleAffectedByUI * zoom.y}); //Draws the background
 
 	//float scaledWidth = maps[currentMap].Width() * scaleAffectedByUI * zoom.x;
 	commonDivisor = gnu::findCommonDivisors(maps[currentMap].Width() * scaleUnaffectedByUI, maps[currentMap].Height() * scaleUnaffectedByUI)[commonDivisorIndex];
@@ -10,9 +10,9 @@ void DnDTool::RenderAll()
 	
 	//DrawLinks(commonDivisor);
 	//RenderFog();
-	if (UIoffset.x > 0)
+	if (screens[currentUI].UIoffset.x > 0)
 	{
-		//RenderHUD();
+		screens[currentUI].Render(this);
 	}
 	RenderCursor();
 }
@@ -87,6 +87,15 @@ void DnDTool::RenderCursor()
 		{
 			grabbable = true;
 		}
+		olc::vf2d UIscale = { width / screens[currentUI].UIBorder->sprite->width, height / screens[currentUI].UIBorder->sprite->height };
+		for (int i = 0; i < screens[currentUI].modeButtons.size(); i++)
+		{
+			if (GetMouseX() > screens[currentUI].modeButtons[i].position.x * UIscale.x && GetMouseX() < (screens[currentUI].modeButtons[i].position.x + screens[currentUI].modeButtons[i].Width())*UIscale.x &&
+				GetMouseY() > screens[currentUI].modeButtons[i].position.y * UIscale.y && GetMouseY() < (screens[currentUI].modeButtons[i].position.y + screens[currentUI].modeButtons[i].Height())*UIscale.y)
+			{
+				grabbable = true;
+			}
+		}
 	}
 	switch (interactionMode)
 	{
@@ -128,15 +137,15 @@ void DnDTool::RenderFog()
 void DnDTool::RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint)
 {
 	//This functions adjusts for UI offset and zoom before finally being sent to the drawing function
-	DrawDecal({ position.x * zoom.x + UIoffset.x, position.y * zoom.y + UIoffset.y }, image, { scale.x * zoom.x, scale.y * zoom.y }, tint);
+	DrawDecal({ position.x * zoom.x + screens[currentUI].UIoffset.x, position.y * zoom.y + screens[currentUI].UIoffset.y }, image, { scale.x * zoom.x, scale.y * zoom.y }, tint);
 }
 void DnDTool::RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint, float angle, olc::vf2d center)
 {
 	//This functions adjusts for UI offset and zoom before finally being sent to the drawing function
-	DrawRotatedDecal({ position.x * zoom.x + UIoffset.x, position.y * zoom.y + UIoffset.y }, 
+	DrawRotatedDecal({ position.x * zoom.x + screens[currentUI].UIoffset.x, position.y * zoom.y + screens[currentUI].UIoffset.y },
 		image, angle, center, { scale.x * zoom.x, scale.y * zoom.y }, tint);
 }
 void DnDTool::RenderText(std::string text, olc::vf2d position, olc::vf2d scale, olc::Pixel tint)
 {
-	DrawStringDecal({ position.x * zoom.x + UIoffset.x, position.y * zoom.y + UIoffset.y}, text, tint, { scale.x * zoom.x, scale.y * zoom.y });
+	DrawStringDecal({ position.x * zoom.x + screens[currentUI].UIoffset.x, position.y * zoom.y + screens[currentUI].UIoffset.y}, text, tint, { scale.x * zoom.x, scale.y * zoom.y });
 }

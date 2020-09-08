@@ -162,7 +162,7 @@
     <ClCompile Include="olcPixelGameEngine.cpp" />
     <ClCompile Include="rendering.cpp" />
     <ClCompile Include="token.cpp" />
-    <ClCompile Include="UI.cpp" />
+    <ClCompile Include="Canvas.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dndtool.h" />

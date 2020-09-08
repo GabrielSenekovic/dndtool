@@ -8,7 +8,7 @@ bool DnDTool::OnUserUpdate(float fElepsedTime)
 	}
 	RenderAll();
 	CheckInput();
-	return true;
+	return playing;
 }	
 void DnDTool:: Quit()
 {
@@ -28,7 +28,7 @@ void DnDTool:: Quit()
 int main()
 {
 	DnDTool dndtool;
-	if (dndtool.Construct(dndtool.width, dndtool.height, 2, 2))
+	if (dndtool.Construct(dndtool.width, dndtool.height, 2, 2, true))
 	{
 		dndtool.Start();
 	}

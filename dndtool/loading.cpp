@@ -30,7 +30,6 @@ void DnDTool::LoadDecals()
 	gridTile = new olc::Decal(new olc::Sprite("./Assets/Tile.png"));
 	selection = new olc::Decal(new olc::Sprite("./Assets/Selection.png"));
 	measuringLine = new olc::Decal(new olc::Sprite("./Assets/Measuring_Line.png"));
-	UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI/UI_Border.png"));
 	OnLoadDecals(buttonIcons, "./Assets/UI/");
 
 	iconMask = Gdiplus::Bitmap::FromFile(gnu::ConvertS2W("./Assets/Mask_100.png").c_str());
@@ -43,7 +42,7 @@ void DnDTool::LoadDecals()
 		cursors.push_back(new olc::Decal(new olc::Sprite(path)));
 	}
 
-	std::string mugshot_paths[5] = { "Test.png", "Player_Haiku.png", "Player_Terrahin.png", "Player_Nym.png", "Player_Bob.png" };
+	std::string mugshot_paths[6] = { "Test.png", "Player_Haiku.png", "Player_Terrahin.png", "Player_Nym.png", "Player_Bob.png", "Player_Isk.png" };
 	int size = sizeof(mugshot_paths) / sizeof(mugshot_paths[0]);
 	for (int i = 0; i < size; i++)
 	{
@@ -56,7 +55,7 @@ void DnDTool::LoadDecals()
 }
 void DnDTool::LoadPlayers()
 {
-	NPCs.push_back(token(icons[0], { 0,0 }, olc::WHITE, "Isk"));
+	NPCs.push_back(token(icons[5], { 0,0 }, olc::WHITE, "Isk"));
 	NPCs.push_back(token(icons[0], { 1,0 }, olc::WHITE, "Cinder"));
 	NPCs.push_back(token(icons[2], { 2,0 }, olc::WHITE, "Tarrehin"));
 	NPCs.push_back(token(icons[4], { 3,0 }, olc::WHITE, "Bob"));
@@ -90,13 +89,20 @@ void DnDTool::ConstructMaps()
 
 void DnDTool::LoadUI()
 {
-	float distanceBetweenButtons = 12.7f;
-	modeButtons =
+	screens =
 	{
-		button(buttonIcons[3], {564,11.5f}),
-		button(buttonIcons[1], {564,11.5f + distanceBetweenButtons}),
-		button(buttonIcons[2], {564,11.5f + distanceBetweenButtons * 2})
+		canvas()
+		//screen 0 is the map UI
+		//screen 1 is the start UI
 	};
+	float distanceBetweenButtons = 17;
+	screens[currentUI].modeButtons =
+	{
+		button(buttonIcons[3], {752,15}, [&]() {interactionMode = InteractionMode::MOVE; }),
+		button(buttonIcons[1], {752,15 + distanceBetweenButtons},[&]() {interactionMode = InteractionMode::DRAW; }),
+		button(buttonIcons[2], {752,15 + distanceBetweenButtons * 2},[&]() {interactionMode = InteractionMode::MEASURE; })
+	};
+	screens[0].UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI/UI_Border.png"));
 }
 
 void DnDTool::LoadMap()

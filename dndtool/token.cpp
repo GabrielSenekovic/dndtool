@@ -7,7 +7,7 @@ void DnDTool::token::Render(DnDTool* dndTool, float tileWidthRatio, float tileab
 
 	float centeringModifier = ((dndTool->gridTile->sprite->width * tileableSize) - ((dndTool->gridTile->sprite->width * tileableSize) * dndTool->iconSizeAdjustment)) / 2;
 
-	olc::vf2d renderPosition = { (position.x * dndTool->gridTile->sprite->width * tileableSize + centeringModifier) / tileWidthRatio, (position.y * dndTool->gridTile->sprite->height * tileableSize + centeringModifier) * dndTool->zoom.y / tileWidthRatio + dndTool->UIoffset.y };
+	olc::vf2d renderPosition = { (position.x * dndTool->gridTile->sprite->width * tileableSize + centeringModifier) / tileWidthRatio, (position.y * dndTool->gridTile->sprite->height * tileableSize + centeringModifier) / tileWidthRatio};
 
 	dndTool->RenderImage(icon, renderPosition, scale, olc::WHITE);
 

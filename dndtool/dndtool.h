@@ -25,17 +25,24 @@ class DnDTool : public olc::PixelGameEngine
 
 	struct button
 	{
-		olc::Decal* icon;
+		olc::Decal* icons[3] = {};
 		olc::vf2d position = { 0,0 };
-		button(olc::Decal* icon_in, olc::vf2d position_in);
+		std::function<void()> function;
+
+		button(olc::Decal* icon_in, olc::vf2d position_in, std::function<void()> function_in);
 		bool OnPress();
 		float Width(); float Height();
 	};
-	struct UI
+	struct canvas
 	{
-		void Render(DnDTool dndTool);
-		void RenderButtons(DnDTool dndTool, olc::vf2d scale);
-		void RenderText(DnDTool dndTool);
+		olc::Decal* UIBorder = nullptr;
+		olc::vf2d UIoffset = { 0,0 }; //how offset the entire image is due to the UI
+		std::vector<button> modeButtons;
+		olc::vf2d scaleUIOffset = { 0,0 };
+
+		void Render(DnDTool* dndTool);
+		void RenderButtons(DnDTool* dndTool, olc::vf2d scale);
+		void RenderText(DnDTool* dndTool);
 	};
 	struct map
 	{
@@ -126,20 +133,20 @@ class DnDTool : public olc::PixelGameEngine
 	olc::vf2d zoom = { 1,1 };
 	olc::vf2d panOffset = { 0,0 }; //When zoomed in, used to drag the camera around, ie. pan around
 
-	olc::Decal* UIBorder = nullptr;
+	std::vector<canvas> screens;
+	int currentUI;
 	std::vector<olc::Decal*> buttonIcons;
-	olc::vf2d UIoffset = { 0,0 }; //how offset the entire image is due to the UI
-	std::vector<button> modeButtons;
-	olc::vf2d scaleUIOffset = { 0,0 };
 	float scaleUnaffectedByUI = 0;
 	float scaleAffectedByUI = 0;
 
 	int currentMap = 0;
 
+	bool playing = true;
+
 public:
 	DnDTool() {}
-	float width = 1920.0f * 0.3f; //4
-	float height = 1080.0f * 0.3f;
+	float width = 1920.0f * 0.4f; //4
+	float height = 1080.0f * 0.4f;
 
 	//loading.cpp
 	bool OnUserCreate()override;
