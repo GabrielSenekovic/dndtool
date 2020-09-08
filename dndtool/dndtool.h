@@ -34,20 +34,20 @@ class DnDTool : public olc::PixelGameEngine
 			}
 		};
 		std::vector<link> links;
-		olc::Decal* background = nullptr;
+		olc::Decal background = olc::Decal(new olc::Sprite());
 		int tileScale;
 	public:
 		std::string mapIdentifier;
 		int commonDivisorIndex = 0;
 
-		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in)
+		map(std::string mapIdentifier_in, olc::Decal background_in, int tileScale_in)
 		{
 			mapIdentifier = mapIdentifier_in;
 			links = {};
 			background = background_in;
 			tileScale = tileScale_in;
 		}
-		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in, int commonDivisor_in)
+		map(std::string mapIdentifier_in, olc::Decal background_in, int tileScale_in, int commonDivisor_in)
 		{
 			mapIdentifier = mapIdentifier_in;
 			links = {};
@@ -55,14 +55,14 @@ class DnDTool : public olc::PixelGameEngine
 			tileScale = tileScale_in;
 			commonDivisorIndex = commonDivisor_in;
 		}
-		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in)
+		map(std::string mapIdentifier_in, olc::Decal background_in, std::vector<link> links_in, int tileScale_in)
 		{
 			mapIdentifier = mapIdentifier_in;
 			links = links_in;
 			background = background_in;
 			tileScale = tileScale_in;
 		}
-		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in)
+		map(std::string mapIdentifier_in, olc::Decal background_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in)
 		{
 			mapIdentifier = mapIdentifier_in;
 			links = links_in;
@@ -90,6 +90,7 @@ class DnDTool : public olc::PixelGameEngine
 		olc::Pixel tint;
 		olc::vf2d position;
 		std::string name;
+		void Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio);
 	};
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,10 +112,11 @@ class DnDTool : public olc::PixelGameEngine
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::vector<map> maps;
-	std::vector<olc::Decal*> backgrounds;
+	std::vector<olc::Decal> backgrounds;
 	std::vector<std::pair<olc::Decal*, olc::Decal*>> icons;
 	std::vector<olc::Decal*> cursors;
 	std::vector<token> NPCs;
+	float iconSizeAdjustment = 0.75f; //Makes sure the icon is smaller than the tile it is on
 
 	olc::Decal* gridTile = nullptr;
 	int tileDivisor = 256;
@@ -140,8 +142,9 @@ public:
 	float width = 1920.0f * 0.3f; //4
 	float height = 1080.0f * 0.3f;
 
+	//loading.cpp
 	bool OnUserCreate()override;
-	void LoadDecals();
+	void LoadDecals(); void OnLoadDecals(std::vector<olc::Decal> list, std::string path);
 	void LoadPlayers();
 	void ConstructMaps();
 
@@ -157,13 +160,15 @@ public:
 	void FillFog(olc::Pixel color);
 
 	//rendering.cpp
-	void DrawScene();
-	void DrawGrid(float commonDivisor, float scale, float tileWidthRatio, float tileableSize, int gridWidth);
-	void DrawTokens(float tileWidthRatio);
-	void DrawLinks(float modifier);
-	void DrawCursor(float modifier);
-	void DisplayFog();
-	void DisplayHUD();
+	void RenderAll(); //Renders everything
+	void RenderMap(); //Renders grid, tokens and links
+	void RenderGrid(float amountOfColumns, float tileWidthRatio, float tileableSize, int gridWidth, olc::vf2d tileScale, float iconToTileRatio);
+	void RenderLinks(float modifier);
+	void RenderCursor();
+	void RenderFog();
+	void RenderHUD();
+	void RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint); //Renders one thing on the map
+	void RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint, float angle, olc::vf2d center);
 
 	//middlehand.cpp
 	olc::vf2d GetScaleUIOffset();

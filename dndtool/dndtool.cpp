@@ -6,7 +6,7 @@ bool DnDTool::OnUserUpdate(float fElepsedTime)
 	{
 		selectionAngle += selectionRotationSpeed;
 	}
-	DrawScene();
+	RenderAll();
 	CheckInput();
 	return true;
 }	
@@ -16,10 +16,6 @@ void DnDTool:: Quit()
 	{
 		delete icons[i].first;
 		delete icons[i].second;
-	}
-	for (size_t i = 0; i < backgrounds.size(); i++)
-	{
-		delete backgrounds[i];
 	}
 	for (size_t i = 0; i < cursors.size(); i++)
 	{

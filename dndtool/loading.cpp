@@ -7,11 +7,25 @@ bool DnDTool::OnUserCreate()
 	ToggleUI();
 	return true;
 }
+
+void DnDTool::OnLoadDecals(std::vector<olc::Decal> list, std::string path)
+{
+	for (int i = 1; i > 0; i++)
+	{
+		path += std::to_string(i) + ".png";
+		backgrounds.emplace_back(new olc::Sprite(path.c_str()));
+		if (backgrounds.back().sprite->width <= 0)
+		{
+			backgrounds.pop_back();
+			return;
+		}
+	}
+}
 void DnDTool::LoadDecals()
 {
+	OnLoadDecals(backgrounds, "./Assets/Backgrounds/");
 	gridTile = new olc::Decal(new olc::Sprite("./Assets/Tile.png"));
 	selection = new olc::Decal(new olc::Sprite("./Assets/Selection.png"));
-	backgrounds.push_back(new olc::Decal(new olc::Sprite("./Assets/1.png")));
 	measuringLine = new olc::Decal(new olc::Sprite("./Assets/Measuring_Line.png"));
 	UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI_Border.png"));
 	UIButton = new olc::Decal(new olc::Sprite("./Assets/UI_Button_Background.png"));
@@ -68,5 +82,5 @@ void DnDTool::ConstructMaps()
 	{
 		map("MapName", backgrounds[0], std::vector<map::link> { map::link("Hello", {5,5}) }, 1)
 	};
-	scaleUnaffectedByUI = maps[currentMap].background->sprite->width > maps[currentMap].background->sprite->height ? (width / (maps[currentMap].background->sprite->width)) : (height / maps[currentMap].background->sprite->height);
+	scaleUnaffectedByUI = maps[currentMap].background.sprite->width > maps[currentMap].background.sprite->height ? (width / (maps[currentMap].background.sprite->width)) : (height / maps[currentMap].background.sprite->height);
 }

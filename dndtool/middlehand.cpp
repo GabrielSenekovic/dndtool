@@ -11,11 +11,11 @@ olc::vi2d DnDTool::GetMousePositionInXY()
 olc::vf2d DnDTool::GetMousePositionInXYFloat()
 {
 	olc::vf2d scaleUIOffset = GetScaleUIOffset();
-	float commonDivisor = gnu::findCommonDivisors(maps[currentMap].background->sprite->width * scaleUnaffectedByUI, maps[currentMap].background->sprite->height * scaleUnaffectedByUI)[commonDivisorIndex];
-	float mapWidthScaledByUI = maps[currentMap].background->sprite->width * scaleAffectedByUI;
+	float commonDivisor = gnu::findCommonDivisors(maps[currentMap].background.sprite->width * scaleUnaffectedByUI, maps[currentMap].background.sprite->height * scaleUnaffectedByUI)[commonDivisorIndex];
+	float mapWidthScaledByUI = maps[currentMap].background.sprite->width * scaleAffectedByUI;
 	float tileableSize = commonDivisor / tileDivisor;
 	float amountOfColumns = scaleUnaffectedByUI / commonDivisor;
-	int gridWidth = (maps[currentMap].background->sprite->width * amountOfColumns);
+	int gridWidth = (maps[currentMap].background.sprite->width * amountOfColumns);
 	float adjustedTileWidth = (mapWidthScaledByUI / gridWidth) / tileableSize;
 
 	olc::vf2d downScaledTileDimensions = { commonDivisor * adjustedTileWidth, commonDivisor * adjustedTileWidth };

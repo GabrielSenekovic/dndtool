@@ -91,6 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,8 +156,10 @@
     <ClCompile Include="dndtool.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="loading.cpp" />
+    <ClCompile Include="map.cpp" />
     <ClCompile Include="middlehand.cpp" />
     <ClCompile Include="rendering.cpp" />
+    <ClCompile Include="token.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dndtool.h" />

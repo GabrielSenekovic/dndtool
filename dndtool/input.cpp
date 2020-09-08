@@ -13,7 +13,7 @@ void DnDTool::CheckInput()
 		case InteractionMode::MEASURE:
 		{
 			//deselect by right clicking
-			int gridWidth = (maps[currentMap].background->sprite->width * (scaleUnaffectedByUI / commonDivisor));
+			int gridWidth = (maps[currentMap].background.sprite->width * (scaleUnaffectedByUI / commonDivisor));
 			selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
 		}
 		}
@@ -32,7 +32,7 @@ void DnDTool::CheckInput()
 		case InteractionMode::MOVE:
 		{
 			//Should only happen if youre pressing a token, otherwise it will deselect
-			int gridWidth = (maps[currentMap].background->sprite->width * (scaleUnaffectedByUI / commonDivisor));
+			int gridWidth = (maps[currentMap].background.sprite->width * (scaleUnaffectedByUI / commonDivisor));
 			selectionAngle = selectedTile == GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x ? selectionAngle : 0;
 			selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
 			for (int i = 0; i < NPCs.size(); i++)
@@ -171,7 +171,7 @@ void DnDTool::PickUpToken()
 	//nothing is on this tile
 	if (heldToken != nullptr)
 	{
-		int gridWidth = (maps[currentMap].background->sprite->width * (scaleUnaffectedByUI / commonDivisor));
+		int gridWidth = (maps[currentMap].background.sprite->width * (scaleUnaffectedByUI / commonDivisor));
 		if (selectedTile == previousTokenPosition.y * gridWidth + previousTokenPosition.x)
 		{
 			selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
