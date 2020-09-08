@@ -153,13 +153,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="button.cpp" />
     <ClCompile Include="dndtool.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="loading.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="middlehand.cpp" />
+    <ClCompile Include="olcPixelGameEngine.cpp" />
     <ClCompile Include="rendering.cpp" />
     <ClCompile Include="token.cpp" />
+    <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dndtool.h" />

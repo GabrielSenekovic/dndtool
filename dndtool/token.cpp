@@ -16,11 +16,16 @@ void DnDTool::token::Render(DnDTool* dndTool, float tileWidthRatio, float tileab
 
 	if (isHoveringOver || isSelected)
 	{
-		//if this NPC is highlighted
-		float lengthOfName = name.length() * 8;
-		olc::Pixel tint = isSelected ? olc::RED : olc::WHITE;
-		float yPositionModifier = isSelected ? 24 : 20; //Makes sure the text doesnt overlap with the red selection circle
-		float lengthToSubtract = ((lengthOfName - dndTool->gridTile->sprite->width) / 4) + dndTool->gridTile->sprite->width * tileableSize * 2;
-		dndTool->DrawStringDecal({ position.x - lengthToSubtract * dndTool->zoom.x, position.y + yPositionModifier * dndTool->zoom.y / tileWidthRatio }, name, tint, { 0.5f * dndTool->zoom.x, 0.5f * dndTool->zoom.y });
+		RenderText(dndTool, tileWidthRatio, tileableSize, isSelected, renderPosition);
 	}
+}
+void DnDTool::token::RenderText(DnDTool* dndTool, float tileWidthRatio, float tileableSize, bool isSelected, olc::vf2d renderPosition)
+{
+	float lengthOfName = name.length() * 8;
+	olc::Pixel tint = isSelected ? olc::RED : olc::WHITE;
+
+	float yPositionModifier = isSelected ? 24 : 20; //Makes sure the text doesnt overlap with the red selection circle
+	float lengthToSubtract = ((lengthOfName - dndTool->gridTile->sprite->width) / 4) + dndTool->gridTile->sprite->width * tileableSize * 2;
+
+	dndTool->RenderText(name, { renderPosition.x - lengthToSubtract, renderPosition.y + yPositionModifier }, { 0.5f, 0.5f }, tint);
 }

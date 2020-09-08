@@ -1,8 +1,16 @@
 #include "dndtool.h"
 
-olc::vf2d DnDTool::GetScaleUIOffset()
+void DnDTool::SetScaleUIOffset()
 {
-	return UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / UIBorder->sprite->width, 32 * height / UIBorder->sprite->height };
+	scaleUIOffset = UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / UIBorder->sprite->width, 32 * height / UIBorder->sprite->height };
+	SetScaleAffectedByUI();
+}
+void DnDTool::SetScaleAffectedByUI()
+{
+	//Only needs to be calculated when UIoffset change or when the map changes, so it shouldnt be here!
+	scaleAffectedByUI = maps[currentMap].Width() > maps[currentMap].Height() ? //Is the width bigger than the height?
+		((width - scaleUIOffset.x) / (maps[currentMap].Height())) : //If its wider than tall, then scale based on width
+		((height - scaleUIOffset.y) / maps[currentMap].Height()); //Otherwise, scale by height 
 }
 olc::vi2d DnDTool::GetMousePositionInXY()
 {
@@ -10,12 +18,12 @@ olc::vi2d DnDTool::GetMousePositionInXY()
 }
 olc::vf2d DnDTool::GetMousePositionInXYFloat()
 {
-	olc::vf2d scaleUIOffset = GetScaleUIOffset();
-	float commonDivisor = gnu::findCommonDivisors(maps[currentMap].background.sprite->width * scaleUnaffectedByUI, maps[currentMap].background.sprite->height * scaleUnaffectedByUI)[commonDivisorIndex];
-	float mapWidthScaledByUI = maps[currentMap].background.sprite->width * scaleAffectedByUI;
+	SetScaleUIOffset();
+	float commonDivisor = gnu::findCommonDivisors(maps[currentMap].Width() * scaleUnaffectedByUI, maps[currentMap].Height() * scaleUnaffectedByUI)[commonDivisorIndex];
+	float mapWidthScaledByUI = maps[currentMap].Width() * scaleAffectedByUI;
 	float tileableSize = commonDivisor / tileDivisor;
 	float amountOfColumns = scaleUnaffectedByUI / commonDivisor;
-	int gridWidth = (maps[currentMap].background.sprite->width * amountOfColumns);
+	int gridWidth = (maps[currentMap].Width() * amountOfColumns);
 	float adjustedTileWidth = (mapWidthScaledByUI / gridWidth) / tileableSize;
 
 	olc::vf2d downScaledTileDimensions = { commonDivisor * adjustedTileWidth, commonDivisor * adjustedTileWidth };

@@ -1,8 +1,13 @@
-#pragma once
-#define OLC_PGE_APPLICATION
+#ifndef DNDTOOL_H
+#define DNDTOOL_H
+
+#include <windows.h>
+#include <objidl.h>
+#include <gdiplus.h>
+#include "olcPixelGameEngine.h"
 #include <iostream>
 #include "GabNubUtilities.h"
-#include "olcPixelGameEngine.h"
+
 class DnDTool : public olc::PixelGameEngine
 {
 	enum DrawMode
@@ -18,6 +23,20 @@ class DnDTool : public olc::PixelGameEngine
 	};
 	InteractionMode interactionMode = InteractionMode::MOVE;
 
+	struct button
+	{
+		olc::Decal* icon;
+		olc::vf2d position = { 0,0 };
+		button(olc::Decal* icon_in, olc::vf2d position_in);
+		bool OnPress();
+		float Width(); float Height();
+	};
+	struct UI
+	{
+		void Render(DnDTool dndTool);
+		void RenderButtons(DnDTool dndTool, olc::vf2d scale);
+		void RenderText(DnDTool dndTool);
+	};
 	struct map
 	{
 		struct link
@@ -34,45 +53,27 @@ class DnDTool : public olc::PixelGameEngine
 			}
 		};
 		std::vector<link> links;
-		olc::Decal background = olc::Decal(new olc::Sprite());
+		olc::Decal* background = nullptr;
 		int tileScale;
 	public:
 		std::string mapIdentifier;
 		int commonDivisorIndex = 0;
 
-		map(std::string mapIdentifier_in, olc::Decal background_in, int tileScale_in)
-		{
-			mapIdentifier = mapIdentifier_in;
-			links = {};
-			background = background_in;
-			tileScale = tileScale_in;
-		}
-		map(std::string mapIdentifier_in, olc::Decal background_in, int tileScale_in, int commonDivisor_in)
-		{
-			mapIdentifier = mapIdentifier_in;
-			links = {};
-			background = background_in;
-			tileScale = tileScale_in;
-			commonDivisorIndex = commonDivisor_in;
-		}
-		map(std::string mapIdentifier_in, olc::Decal background_in, std::vector<link> links_in, int tileScale_in)
-		{
-			mapIdentifier = mapIdentifier_in;
-			links = links_in;
-			background = background_in;
-			tileScale = tileScale_in;
-		}
-		map(std::string mapIdentifier_in, olc::Decal background_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in)
-		{
-			mapIdentifier = mapIdentifier_in;
-			links = links_in;
-			background = background_in;
-			tileScale = tileScale_in;
-			commonDivisorIndex = commonDivisor_in;
-		}
+		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in);
+		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in, int commonDivisor_in);
+		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in);
+		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in);
+		float Width();
+		float Height();
 	};
 	struct token
 	{
+		olc::Decal* icon = nullptr;
+		olc::Decal* icon_unmasked = nullptr;
+		olc::Pixel tint;
+		olc::vf2d position;
+		std::string name;
+
 		token()
 		{
 
@@ -85,12 +86,8 @@ class DnDTool : public olc::PixelGameEngine
 			tint = tint_in;
 			name = name_in;
 		}
-		olc::Decal* icon = nullptr;
-		olc::Decal* icon_unmasked = nullptr;
-		olc::Pixel tint;
-		olc::vf2d position;
-		std::string name;
 		void Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio);
+		void RenderText(DnDTool* dndTool, float tileWidthRatio, float tileableSize, bool isSelected, olc::vf2d renderPosition);
 	};
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +109,7 @@ class DnDTool : public olc::PixelGameEngine
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::vector<map> maps;
-	std::vector<olc::Decal> backgrounds;
+	std::vector<olc::Decal*> backgrounds;
 	std::vector<std::pair<olc::Decal*, olc::Decal*>> icons;
 	std::vector<olc::Decal*> cursors;
 	std::vector<token> NPCs;
@@ -130,8 +127,10 @@ class DnDTool : public olc::PixelGameEngine
 	olc::vf2d panOffset = { 0,0 }; //When zoomed in, used to drag the camera around, ie. pan around
 
 	olc::Decal* UIBorder = nullptr;
-	olc::Decal* UIButton = nullptr;
+	std::vector<olc::Decal*> buttonIcons;
 	olc::vf2d UIoffset = { 0,0 }; //how offset the entire image is due to the UI
+	std::vector<button> modeButtons;
+	olc::vf2d scaleUIOffset = { 0,0 };
 	float scaleUnaffectedByUI = 0;
 	float scaleAffectedByUI = 0;
 
@@ -144,9 +143,11 @@ public:
 
 	//loading.cpp
 	bool OnUserCreate()override;
-	void LoadDecals(); void OnLoadDecals(std::vector<olc::Decal> list, std::string path);
+	void LoadDecals(); void OnLoadDecals(std::vector<olc::Decal*> &list, std::string path);
 	void LoadPlayers();
 	void ConstructMaps();
+	void LoadMap();
+	void LoadUI();
 
 	void MaskSprite(olc::Sprite* sprite);
 
@@ -166,14 +167,17 @@ public:
 	void RenderLinks(float modifier);
 	void RenderCursor();
 	void RenderFog();
-	void RenderHUD();
+
 	void RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint); //Renders one thing on the map
 	void RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint, float angle, olc::vf2d center);
+	void RenderText(std::string text, olc::vf2d position, olc::vf2d scale, olc::Pixel tint);
 
 	//middlehand.cpp
-	olc::vf2d GetScaleUIOffset();
+	void SetScaleUIOffset();
+	void SetScaleAffectedByUI();
 	olc::vi2d GetMousePositionInXY();
 	olc::vf2d GetMousePositionInXYFloat();
 
 	void Quit();
 };
+#endif

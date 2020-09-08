@@ -6,16 +6,16 @@ void DnDTool::CheckInput()
 	{
 		switch (interactionMode)
 		{
-		case InteractionMode::MOVE:
-		{
-			PickUpToken(); break;
-		}
-		case InteractionMode::MEASURE:
-		{
-			//deselect by right clicking
-			int gridWidth = (maps[currentMap].background.sprite->width * (scaleUnaffectedByUI / commonDivisor));
-			selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
-		}
+			case InteractionMode::MOVE:
+			{
+				PickUpToken(); break;
+			}
+			case InteractionMode::MEASURE:
+			{
+				//deselect by right clicking
+				int gridWidth = (maps[currentMap].Width() * (scaleUnaffectedByUI / commonDivisor));
+				selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
+			}
 		}
 	}
 	if (GetMouse(0).bHeld)
@@ -32,7 +32,7 @@ void DnDTool::CheckInput()
 		case InteractionMode::MOVE:
 		{
 			//Should only happen if youre pressing a token, otherwise it will deselect
-			int gridWidth = (maps[currentMap].background.sprite->width * (scaleUnaffectedByUI / commonDivisor));
+			int gridWidth = (maps[currentMap].Width() * (scaleUnaffectedByUI / commonDivisor));
 			selectionAngle = selectedTile == GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x ? selectionAngle : 0;
 			selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
 			for (int i = 0; i < NPCs.size(); i++)
@@ -61,7 +61,7 @@ void DnDTool::CheckInput()
 	}
 	if (GetKey(olc::Q).bPressed)
 	{
-		//ToggleUI();
+		ToggleUI();
 	}
 	if (GetKey(olc::A).bPressed)
 	{
@@ -171,7 +171,7 @@ void DnDTool::PickUpToken()
 	//nothing is on this tile
 	if (heldToken != nullptr)
 	{
-		int gridWidth = (maps[currentMap].background.sprite->width * (scaleUnaffectedByUI / commonDivisor));
+		int gridWidth = (maps[currentMap].Width() * (scaleUnaffectedByUI / commonDivisor));
 		if (selectedTile == previousTokenPosition.y * gridWidth + previousTokenPosition.x)
 		{
 			selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
@@ -185,4 +185,9 @@ void DnDTool::PickUpToken()
 void DnDTool::ToggleUI()
 {
 	UIoffset = { 70.0f * (UIoffset.x == 0) * width / UIBorder->sprite->width, 16.0f * (UIoffset.y == 0) * height / UIBorder->sprite->height };
+	scaleUIOffset = UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / UIBorder->sprite->width, 32 * height / UIBorder->sprite->height };
+
+	scaleAffectedByUI = maps[currentMap].Width() > maps[currentMap].Height() ? //Is the width bigger than the height?
+		((width - scaleUIOffset.x) / (maps[currentMap].Height())) : //If its wider than tall, then scale based on width
+		((height - scaleUIOffset.y) / maps[currentMap].Height()); //Otherwise, scale by height 
 }

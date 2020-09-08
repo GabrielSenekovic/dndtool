@@ -4,19 +4,22 @@ bool DnDTool::OnUserCreate()
 	LoadDecals();
 	LoadPlayers();
 	ConstructMaps();
-	ToggleUI();
+	//ToggleUI();
+	LoadUI();
+	LoadMap();
 	return true;
 }
 
-void DnDTool::OnLoadDecals(std::vector<olc::Decal> list, std::string path)
+void DnDTool::OnLoadDecals(std::vector<olc::Decal*> &list, std::string path)
 {
 	for (int i = 1; i > 0; i++)
 	{
-		path += std::to_string(i) + ".png";
-		backgrounds.emplace_back(new olc::Sprite(path.c_str()));
-		if (backgrounds.back().sprite->width <= 0)
+		std::string temp = path + std::to_string(i) + ".png";
+		list.push_back(new olc::Decal(new olc::Sprite(temp.c_str())));
+		//list.emplace_back(new olc::Sprite(path.c_str()));
+		if (list.back()->sprite->width <= 0)
 		{
-			backgrounds.pop_back();
+			list.pop_back();
 			return;
 		}
 	}
@@ -27,11 +30,11 @@ void DnDTool::LoadDecals()
 	gridTile = new olc::Decal(new olc::Sprite("./Assets/Tile.png"));
 	selection = new olc::Decal(new olc::Sprite("./Assets/Selection.png"));
 	measuringLine = new olc::Decal(new olc::Sprite("./Assets/Measuring_Line.png"));
-	UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI_Border.png"));
-	UIButton = new olc::Decal(new olc::Sprite("./Assets/UI_Button_Background.png"));
+	UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI/UI_Border.png"));
+	OnLoadDecals(buttonIcons, "./Assets/UI/");
 
-	iconMask = Gdiplus::Bitmap::FromFile(olc::ConvertS2W("./Assets/Mask_100.png").c_str());
-	eraserMask = Gdiplus::Bitmap::FromFile(olc::ConvertS2W("./Assets/Eraser.png").c_str());
+	iconMask = Gdiplus::Bitmap::FromFile(gnu::ConvertS2W("./Assets/Mask_100.png").c_str());
+	eraserMask = Gdiplus::Bitmap::FromFile(gnu::ConvertS2W("./Assets/Eraser.png").c_str());
 
 	std::string cursor_paths[5] = { "Cursor_Hover.png", "Cursor_Grab.png", "Cursor_Grabbable.png", "Cursor_Draw.png" , "Cursor_Eraser.png" };
 	for (int i = 0; i < 5; i++)
@@ -82,5 +85,21 @@ void DnDTool::ConstructMaps()
 	{
 		map("MapName", backgrounds[0], std::vector<map::link> { map::link("Hello", {5,5}) }, 1)
 	};
-	scaleUnaffectedByUI = maps[currentMap].background.sprite->width > maps[currentMap].background.sprite->height ? (width / (maps[currentMap].background.sprite->width)) : (height / maps[currentMap].background.sprite->height);
+	scaleUnaffectedByUI = maps[currentMap].Width() > maps[currentMap].Height() ? (width / (maps[currentMap].Width())) : (height / maps[currentMap].Height());
+}
+
+void DnDTool::LoadUI()
+{
+	float distanceBetweenButtons = 12.7f;
+	modeButtons =
+	{
+		button(buttonIcons[3], {564,11.5f}),
+		button(buttonIcons[1], {564,11.5f + distanceBetweenButtons}),
+		button(buttonIcons[2], {564,11.5f + distanceBetweenButtons * 2})
+	};
+}
+
+void DnDTool::LoadMap()
+{
+	SetScaleAffectedByUI();
 }
