@@ -99,18 +99,20 @@ class DnDTool : public olc::PixelGameEngine
 		olc::Pixel tint;
 		olc::vf2d position;
 		std::string name;
+		int icon_index;
 
 		token()
 		{
 
 		}
-		token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::vf2d position_in, olc::Pixel tint_in, std::string name_in)
+		token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::vf2d position_in, olc::Pixel tint_in, std::string name_in, int index_in)
 		{
 			icon = icon_in.second;
 			icon_unmasked = icon_in.first;
 			position = position_in;
 			tint = tint_in;
 			name = name_in;
+			icon_index = index_in;
 		}
 		void Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio);
 		void RenderText(DnDTool* dndTool, float tileWidthRatio, float tileableSize, bool isSelected, olc::vf2d renderPosition);
@@ -138,7 +140,7 @@ class DnDTool : public olc::PixelGameEngine
 	std::vector<olc::Decal*> backgrounds;
 	std::vector<std::pair<olc::Decal*, olc::Decal*>> icons;
 	std::vector<olc::Decal*> cursors;
-	std::vector<token> NPCs;
+	std::vector<token> Characters;
 	float iconSizeAdjustment = 0.75f; //Makes sure the icon is smaller than the tile it is on
 
 	olc::Decal* gridTile = nullptr;
@@ -176,10 +178,13 @@ public:
 	//loading.cpp
 	bool OnUserCreate()override;
 	void LoadDecals(); void OnLoadDecals(std::vector<olc::Decal*> &list, std::string path);
-	void LoadPlayers();
+	void LoadCharacters();
 	void ConstructMaps();
 	void LoadMap();
 	void LoadUI();
+
+	//saving.cpp
+	bool SaveCharacters();
 
 	void MaskSprite(olc::Sprite* sprite);
 

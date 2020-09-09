@@ -161,6 +161,7 @@
     <ClCompile Include="middlehand.cpp" />
     <ClCompile Include="olcPixelGameEngine.cpp" />
     <ClCompile Include="rendering.cpp" />
+    <ClCompile Include="saving.cpp" />
     <ClCompile Include="token.cpp" />
     <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="window.cpp" />

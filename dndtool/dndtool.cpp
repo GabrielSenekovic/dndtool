@@ -12,6 +12,7 @@ bool DnDTool::OnUserUpdate(float fElepsedTime)
 }	
 void DnDTool:: Quit()
 {
+	SaveCharacters();
 	for (size_t i = 0; i < icons.size(); i++)
 	{
 		delete icons[i].first;

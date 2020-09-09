@@ -23,7 +23,7 @@ void DnDTool::RenderMap()
 	float adjustedTileWidth = ((maps[currentMap].Width() * scaleAffectedByUI) / gridWidth) / tileableSize;
 	float tileWidthRatio = gridTile->sprite->width / adjustedTileWidth;
 
-	float iconToTileRatio = (float)gridTile->sprite->width / (float)NPCs[0].icon->sprite->width;
+	float iconToTileRatio = (float)gridTile->sprite->width / (float)Characters[0].icon->sprite->width;
 
 	olc::vf2d scale = { tileableSize / tileWidthRatio, tileableSize / tileWidthRatio };
 
@@ -32,9 +32,9 @@ void DnDTool::RenderMap()
 		RenderGrid(amountOfColumns, tileWidthRatio, tileableSize, gridWidth, scale, iconToTileRatio);
 	}
 	//Draw all tokens
-	for (unsigned int i = 0; i < NPCs.size(); i++)
+	for (unsigned int i = 0; i < Characters.size(); i++)
 	{
-		NPCs[i].Render(this, tileWidthRatio, tileableSize, gridWidth, scale, iconToTileRatio);
+		Characters[i].Render(this, tileWidthRatio, tileableSize, gridWidth, scale, iconToTileRatio);
 	}
 }
 void DnDTool::RenderGrid(float amountOfColumns, float tileWidthRatio, float tileableSize, int gridWidth, olc::vf2d tileScale, float iconToTileRatio)
@@ -80,9 +80,9 @@ void DnDTool::RenderCursor()
 	bool grabbable = false;
 	olc::vf2d scale = { 0.5f,0.5f };
 	olc::vf2d position = { (GetMouseX() - 10) * zoom.x, (GetMouseY() - 10) * zoom.y };
-	for (size_t i = 0; i < NPCs.size(); i++)
+	for (size_t i = 0; i < Characters.size(); i++)
 	{
-		if (NPCs[i].position.x == GetMousePositionInXY().x && NPCs[i].position.y == GetMousePositionInXY().y)
+		if (Characters[i].position.x == GetMousePositionInXY().x && Characters[i].position.y == GetMousePositionInXY().y)
 		{
 			grabbable = true;
 		}

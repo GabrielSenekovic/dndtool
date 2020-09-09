@@ -91,11 +91,11 @@ void DnDTool::CheckInput()
 				int gridWidth = (maps[currentMap].Width() * (scaleUnaffectedByUI / commonDivisor));
 				selectionAngle = selectedTile == GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x ? selectionAngle : 0;
 				selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
-				for (int i = 0; i < NPCs.size(); i++)
+				for (int i = 0; i < Characters.size(); i++)
 				{
-					if (NPCs[i].position.y * gridWidth + NPCs[i].position.x == selectedTile)
+					if (Characters[i].position.y * gridWidth + Characters[i].position.x == selectedTile)
 					{
-						selectedToken = NPCs[i];
+						selectedToken = Characters[i];
 					}
 				}
 				break;
@@ -184,21 +184,21 @@ void DnDTool::EraseDraw(DrawMode mode)
 void DnDTool::PickUpToken()
 {
 	olc::vf2d MousePositionInXY = GetMousePositionInXY();
-	for (int i = 0; i < NPCs.size(); i++)
+	for (int i = 0; i < Characters.size(); i++)
 	{
-		if (NPCs[i].position.x == MousePositionInXY.x && NPCs[i].position.y == MousePositionInXY.y)
+		if (Characters[i].position.x == MousePositionInXY.x && Characters[i].position.y == MousePositionInXY.y)
 		{
 			//if there is something here
 			if (heldToken == nullptr)
 			{
-				heldToken = &NPCs[i];
-				previousTokenPosition = NPCs[i].position;
-				NPCs[i].position = { -1,-1 }; //Instead of making the icon invisible, I move it offscreen
+				heldToken = &Characters[i];
+				previousTokenPosition = Characters[i].position;
+				Characters[i].position = { -1,-1 }; //Instead of making the icon invisible, I move it offscreen
 			}
 			else
 			{
-				std::swap(NPCs[i], *heldToken);
-				NPCs[i].position = { MousePositionInXY.x,MousePositionInXY.y }; //Instead of making the icon invisible, I move it offscreen
+				std::swap(Characters[i], *heldToken);
+				Characters[i].position = { MousePositionInXY.x,MousePositionInXY.y }; //Instead of making the icon invisible, I move it offscreen
 			}
 			return;
 		}

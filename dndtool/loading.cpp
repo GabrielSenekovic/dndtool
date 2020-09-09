@@ -2,7 +2,7 @@
 bool DnDTool::OnUserCreate()
 {
 	LoadDecals();
-	LoadPlayers();
+	LoadCharacters();
 	ConstructMaps();
 	//ToggleUI();
 	LoadUI();
@@ -56,14 +56,14 @@ void DnDTool::LoadDecals()
 		icons.push_back(std::pair<olc::Decal*, olc::Decal*>(unMasked, new olc::Decal(sprite)));
 	}
 }
-void DnDTool::LoadPlayers()
+void DnDTool::LoadCharacters()
 {
-	NPCs.push_back(token(icons[5], { 0,0 }, olc::WHITE, "Isk"));
-	NPCs.push_back(token(icons[0], { 1,0 }, olc::WHITE, "Cinder"));
-	NPCs.push_back(token(icons[2], { 2,0 }, olc::WHITE, "Tarrehin"));
-	NPCs.push_back(token(icons[4], { 3,0 }, olc::WHITE, "Bob"));
-	NPCs.push_back(token(icons[3], { 4,0 }, olc::WHITE, "Nym"));
-	NPCs.push_back(token(icons[1], { 5,0 }, olc::WHITE, "Haiku"));
+	Characters.push_back(token(icons[5], { 0,0 }, olc::WHITE, "Isk" , 5));
+	Characters.push_back(token(icons[0], { 1,0 }, olc::WHITE, "Cinder", 0));
+	Characters.push_back(token(icons[2], { 2,0 }, olc::WHITE, "Tarrehin", 2));
+	Characters.push_back(token(icons[4], { 3,0 }, olc::WHITE, "Bob", 4));
+	Characters.push_back(token(icons[3], { 4,0 }, olc::WHITE, "Nym", 3));
+	Characters.push_back(token(icons[1], { 5,0 }, olc::WHITE, "Haiku", 1));
 }
 void DnDTool::MaskSprite(olc::Sprite* sprite)
 {
