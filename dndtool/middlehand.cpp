@@ -19,7 +19,6 @@ olc::vi2d DnDTool::GetMousePositionInXY()
 olc::vf2d DnDTool::GetMousePositionInXYFloat()
 {
 	SetScaleUIOffset();
-	float commonDivisor = gnu::findCommonDivisors(maps[currentMap].Width() * scaleUnaffectedByUI, maps[currentMap].Height() * scaleUnaffectedByUI)[commonDivisorIndex];
 	float mapWidthScaledByUI = maps[currentMap].Width() * scaleAffectedByUI;
 	float tileableSize = commonDivisor / tileDivisor;
 	float amountOfColumns = scaleUnaffectedByUI / commonDivisor;

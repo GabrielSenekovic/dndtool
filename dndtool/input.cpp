@@ -92,11 +92,21 @@ void DnDTool::CheckInput()
 		}
 		if (GetKey(olc::M).bPressed)
 		{
-			commonDivisorIndex += 1 * (commonDivisorIndex < 9);
+			std::vector<int> commonDivisors = gnu::findCommonDivisors(maps[currentMap].Width(), maps[currentMap].Height());
+
+			int gridWidth = (scaleUnaffectedByUI / commonDivisors[commonDivisorIndex + 1] * maps[currentMap].Width());
+
+			commonDivisorIndex += 1 * (gridWidth >= 8);
+			commonDivisor = commonDivisors[commonDivisorIndex];
 		}
 		if (GetKey(olc::N).bPressed)
 		{
-			commonDivisorIndex -= 1 * (commonDivisorIndex > 1);
+			std::vector<int> commonDivisors = gnu::findCommonDivisors(maps[currentMap].Width(), maps[currentMap].Height());
+
+			int gridWidth = (scaleUnaffectedByUI / commonDivisors[commonDivisorIndex - 1] * maps[currentMap].Width());
+
+			commonDivisorIndex -= 1 * (gridWidth <= 50);
+			commonDivisor = commonDivisors[commonDivisorIndex];
 		}
 		if (GetMouse(0).bPressed && interactionMode == InteractionMode::DRAW)
 		{

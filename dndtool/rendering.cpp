@@ -4,8 +4,6 @@ void DnDTool::RenderAll()
 {
 	DrawDecal({ screens[currentUI].UIoffset.x,screens[currentUI].UIoffset.y }, maps[currentMap].background, { scaleAffectedByUI * zoom.x,scaleAffectedByUI * zoom.y}); //Draws the background
 
-	//float scaledWidth = maps[currentMap].Width() * scaleAffectedByUI * zoom.x;
-	commonDivisor = gnu::findCommonDivisors(maps[currentMap].Width() * scaleUnaffectedByUI, maps[currentMap].Height() * scaleUnaffectedByUI)[commonDivisorIndex];
 	RenderMap();
 	
 	//DrawLinks(commonDivisor);

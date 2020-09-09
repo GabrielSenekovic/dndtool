@@ -32,6 +32,8 @@ void DnDTool::LoadDecals()
 	measuringLine = new olc::Decal(new olc::Sprite("./Assets/Measuring_Line.png"));
 	OnLoadDecals(buttonIcons, "./Assets/UI/");
 
+	debugSquare = new olc::Decal(new olc::Sprite("./Assets/Debug_Square.png"));
+
 	iconMask = Gdiplus::Bitmap::FromFile(gnu::ConvertS2W("./Assets/Mask_100.png").c_str());
 	eraserMask = Gdiplus::Bitmap::FromFile(gnu::ConvertS2W("./Assets/Eraser.png").c_str());
 
@@ -108,4 +110,15 @@ void DnDTool::LoadUI()
 void DnDTool::LoadMap()
 {
 	SetScaleAffectedByUI();
+	std::vector<int> commonDivisors = gnu::findCommonDivisors(maps[currentMap].Width(), maps[currentMap].Height());
+	int gridWidth = (scaleUnaffectedByUI / commonDivisors[commonDivisorIndex + 1] * maps[currentMap].Width());
+	for (int i = 0; i < commonDivisors.size(); i++)
+	{
+		if (commonDivisors[i] >= 50)
+		{
+			commonDivisorIndex = i;
+			break;
+		}
+	}
+	commonDivisor = commonDivisors[commonDivisorIndex];
 }

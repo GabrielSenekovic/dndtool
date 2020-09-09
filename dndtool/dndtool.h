@@ -139,6 +139,8 @@ class DnDTool : public olc::PixelGameEngine
 	float scaleUnaffectedByUI = 0;
 	float scaleAffectedByUI = 0;
 
+	olc::Decal* debugSquare;
+
 	int currentMap = 0;
 
 	bool playing = true;
