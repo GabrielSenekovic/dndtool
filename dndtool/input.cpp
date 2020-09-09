@@ -13,9 +13,10 @@ void DnDTool::CheckInput()
 			break;
 		}
 	}
-
-	//Go through each active window, and stop as soon as hoveredButton isnt nullptr anymore
-	hoveredButton = windows[0].CheckButtonCollision({ (float)GetMouseX(), (float)GetMouseY() }, UIscale);
+	if (currentEvent.first == Event::EVENT_INQUIRY)
+	{
+		hoveredButton = windows[0].CheckButtonCollision({ (float)GetMouseX(), (float)GetMouseY() }, UIscale);
+	}
 
 	if (GetKey(olc::CTRL).bHeld)
 	{

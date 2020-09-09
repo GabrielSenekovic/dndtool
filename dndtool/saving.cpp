@@ -11,10 +11,10 @@ bool DnDTool::SaveCharacters()
 
 	for (size_t i = 0; i < Characters.size(); i++)
 	{
-		fileData.resize(fileData.size() + Characters[i].name.size() + sizeof(Characters[i].icon_index));
+		fileData.resize(fileData.size() + Characters[i].name.size() + 1 + sizeof(Characters[i].icon_index));
 
 		memcpy(fileData.data() + bytesWritten, Characters[i].name.data(), Characters[i].name.size());
-		bytesWritten += Characters[i].name.size();
+		bytesWritten += Characters[i].name.size() + 1;
 		memcpy(fileData.data() + bytesWritten, &Characters[i].icon_index, sizeof(int));
 		bytesWritten += sizeof(int);
 	}

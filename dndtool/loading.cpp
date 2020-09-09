@@ -24,16 +24,35 @@ void DnDTool::OnLoadDecals(std::vector<olc::Decal*> &list, std::string path)
 		}
 	}
 }
+void DnDTool::OnLoadDecalsMasked(std::vector<std::pair<olc::Decal*, olc::Decal*>>& list, std::string path)
+{
+	for (int i = 1; i > 0; i++)
+	{
+		std::string temp = path + std::to_string(i) + ".png";
+
+		olc::Sprite* sprite = new olc::Sprite(temp);
+		olc::Decal* unMasked = new olc::Decal(sprite);
+		MaskSprite(sprite);
+
+		list.push_back(std::pair<olc::Decal*, olc::Decal*>(unMasked, new olc::Decal(sprite)));
+		//list.emplace_back(new olc::Sprite(path.c_str()));
+		if (list.back().first->sprite->width <= 0)
+		{
+			list.pop_back();
+			return;
+		}
+	}
+}
 void DnDTool::LoadDecals()
 {
-	OnLoadDecals(backgrounds, "./Assets/Backgrounds/");
 	gridTile = new olc::Decal(new olc::Sprite("./Assets/Tile.png"));
 	selection = new olc::Decal(new olc::Sprite("./Assets/Selection.png"));
 	measuringLine = new olc::Decal(new olc::Sprite("./Assets/Measuring_Line.png"));
+	debugSquare = new olc::Decal(new olc::Sprite("./Assets/Debug_Square.png"));
+
+	OnLoadDecals(backgrounds, "./Assets/Backgrounds/");
 	OnLoadDecals(buttonIcons, "./Assets/UI/");
 	OnLoadDecals(buttonIcons_Special, "./Assets/UI/Special_");
-
-	debugSquare = new olc::Decal(new olc::Sprite("./Assets/Debug_Square.png"));
 
 	iconMask = Gdiplus::Bitmap::FromFile(gnu::ConvertS2W("./Assets/Mask_100.png").c_str());
 	eraserMask = Gdiplus::Bitmap::FromFile(gnu::ConvertS2W("./Assets/Eraser.png").c_str());
@@ -45,25 +64,33 @@ void DnDTool::LoadDecals()
 		cursors.push_back(new olc::Decal(new olc::Sprite(path)));
 	}
 
-	std::string mugshot_paths[6] = { "Test.png", "Player_Haiku.png", "Player_Terrahin.png", "Player_Nym.png", "Player_Bob.png", "Player_Isk.png" };
-	int size = sizeof(mugshot_paths) / sizeof(mugshot_paths[0]);
-	for (int i = 0; i < size; i++)
-	{
-		std::string path = "./Assets/Tokens/" + mugshot_paths[i];
-		olc::Sprite* sprite = new olc::Sprite(path);
-		olc::Decal* unMasked = new olc::Decal(sprite);
-		MaskSprite(sprite);
-		icons.push_back(std::pair<olc::Decal*, olc::Decal*>(unMasked, new olc::Decal(sprite)));
-	}
+	OnLoadDecalsMasked(icons, "./Assets/Tokens/");
 }
 void DnDTool::LoadCharacters()
 {
-	Characters.push_back(token(icons[5], { 0,0 }, olc::WHITE, "Isk" , 5));
-	Characters.push_back(token(icons[0], { 1,0 }, olc::WHITE, "Cinder", 0));
-	Characters.push_back(token(icons[2], { 2,0 }, olc::WHITE, "Tarrehin", 2));
-	Characters.push_back(token(icons[4], { 3,0 }, olc::WHITE, "Bob", 4));
-	Characters.push_back(token(icons[3], { 4,0 }, olc::WHITE, "Nym", 3));
-	Characters.push_back(token(icons[1], { 5,0 }, olc::WHITE, "Haiku", 1));
+	std::ifstream in("./Assets/SaveData/tokens.txt", std::ifstream::ate | std::ifstream::binary);
+	uint8_t fileSize = in.tellg();
+
+	FILE* file;
+	fopen_s(&file, "./Assets/SaveData/tokens.txt", "rb");
+	if (!file) return;
+	std::vector<uint8_t> fileData = {};
+	fileData.resize(fileSize);
+	uint8_t bytesRead = 0;
+
+	fread(fileData.data(), 1, fileSize, file);
+
+	while (bytesRead < fileSize)
+	{
+		std::string name((const char*)(fileData.data() + bytesRead));
+		bytesRead += strlen(name.c_str())+1;
+
+		int index = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(int);
+
+		Characters.push_back(token(icons[index], olc::WHITE, name, index));
+	}
+	fclose(file);
 }
 void DnDTool::MaskSprite(olc::Sprite* sprite)
 {

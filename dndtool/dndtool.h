@@ -105,11 +105,10 @@ class DnDTool : public olc::PixelGameEngine
 		{
 
 		}
-		token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::vf2d position_in, olc::Pixel tint_in, std::string name_in, int index_in)
+		token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::Pixel tint_in, const std::string& name_in, int index_in)
 		{
 			icon = icon_in.second;
 			icon_unmasked = icon_in.first;
-			position = position_in;
 			tint = tint_in;
 			name = name_in;
 			icon_index = index_in;
@@ -177,7 +176,7 @@ public:
 
 	//loading.cpp
 	bool OnUserCreate()override;
-	void LoadDecals(); void OnLoadDecals(std::vector<olc::Decal*> &list, std::string path);
+	void LoadDecals(); void OnLoadDecals(std::vector<olc::Decal*>& list, std::string path); void OnLoadDecalsMasked(std::vector<std::pair<olc::Decal*, olc::Decal*>>& list, std::string path);
 	void LoadCharacters();
 	void ConstructMaps();
 	void LoadMap();
