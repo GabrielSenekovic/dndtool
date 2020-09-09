@@ -2,7 +2,7 @@
 
 void DnDTool::SetScaleUIOffset()
 {
-	screens[currentUI].scaleUIOffset = screens[currentUI].UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / screens[currentUI].UIBorder->sprite->width, 32 * height / screens[currentUI].UIBorder->sprite->height };
+	screens[currentUI].scaleUIOffset = screens[currentUI].UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / screens[currentUI].windows[0]->sprite->width, 32 * height / screens[currentUI].windows[0]->sprite->height };
 	SetScaleAffectedByUI();
 }
 void DnDTool::SetScaleAffectedByUI()

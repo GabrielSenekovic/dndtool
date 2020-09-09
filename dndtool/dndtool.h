@@ -10,6 +10,12 @@
 
 class DnDTool : public olc::PixelGameEngine
 {
+	enum Event
+	{
+		EVENT_NONE, 
+		EVENT_INQUIRY //Will open the inquiry window
+	};
+	std::pair<Event, bool*> currentEvent = std::pair<Event, bool*>(Event::EVENT_NONE,nullptr);
 	enum DrawMode
 	{
 		DRAWMODE_DRAW, DRAWMODE_ERASE, DRAWMODE_FILL
@@ -33,11 +39,24 @@ class DnDTool : public olc::PixelGameEngine
 		bool OnPress();
 		float Width(); float Height();
 	};
+	struct window
+	{
+		//This struct takes care of each image that carries buttons
+		olc::vf2d position;
+		std::vector<button> buttons;
+		olc::Decal* background;
+		std::string text;
+
+		window(std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in);
+		void Render(DnDTool* dndTool);
+		button* CheckButtonCollision(olc::vf2d mouse, olc::vf2d UIscale);
+	};
 	struct canvas
 	{
-		olc::Decal* UIBorder = nullptr;
+		//This struct takes care of each scene
+		std::vector<olc::Decal*> windows = {}; // index 0 is always the frame
 		olc::vf2d UIoffset = { 0,0 }; //how offset the entire image is due to the UI
-		std::vector<button> modeButtons;
+		std::vector<button> buttons;
 		olc::vf2d scaleUIOffset = { 0,0 };
 
 		void Render(DnDTool* dndTool);
@@ -133,12 +152,16 @@ class DnDTool : public olc::PixelGameEngine
 	olc::vf2d zoom = { 1,1 };
 	olc::vf2d panOffset = { 0,0 }; //When zoomed in, used to drag the camera around, ie. pan around
 
-	std::vector<canvas> screens;
+	std::vector<window> windows; //Different windows that may be called from anywhere
+	std::vector<canvas> screens; //Different screens, i.e start screen, load screen, map screen
 	int currentUI;
 	std::vector<olc::Decal*> buttonIcons;
+	std::vector<olc::Decal*> buttonIcons_Special; //Quit, Exit, Save, Load, Yes, No
 	float scaleUnaffectedByUI = 0;
 	float scaleAffectedByUI = 0;
+	button* hoveredButton = nullptr;
 
+	bool debug = false;
 	olc::Decal* debugSquare;
 
 	int currentMap = 0;
@@ -176,6 +199,7 @@ public:
 	void RenderLinks(float modifier);
 	void RenderCursor();
 	void RenderFog();
+	void RenderWindows();
 
 	void RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint); //Renders one thing on the map
 	void RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint, float angle, olc::vf2d center);

@@ -12,6 +12,7 @@ void DnDTool::RenderAll()
 	{
 		screens[currentUI].Render(this);
 	}
+	RenderWindows();
 	RenderCursor();
 }
 void DnDTool::RenderMap()
@@ -85,14 +86,9 @@ void DnDTool::RenderCursor()
 		{
 			grabbable = true;
 		}
-		olc::vf2d UIscale = { width / screens[currentUI].UIBorder->sprite->width, height / screens[currentUI].UIBorder->sprite->height };
-		for (int i = 0; i < screens[currentUI].modeButtons.size(); i++)
+		if (hoveredButton != nullptr)
 		{
-			if (GetMouseX() > screens[currentUI].modeButtons[i].position.x * UIscale.x && GetMouseX() < (screens[currentUI].modeButtons[i].position.x + screens[currentUI].modeButtons[i].Width())*UIscale.x &&
-				GetMouseY() > screens[currentUI].modeButtons[i].position.y * UIscale.y && GetMouseY() < (screens[currentUI].modeButtons[i].position.y + screens[currentUI].modeButtons[i].Height())*UIscale.y)
-			{
-				grabbable = true;
-			}
+			grabbable = true;
 		}
 	}
 	switch (interactionMode)
@@ -130,6 +126,17 @@ void DnDTool::RenderFog()
 	delete fogOfWarDecal; fogOfWarDecal = nullptr;
 	fogOfWarDecal = new olc::Decal(fogOfWarSprite);
 	DrawDecal({ 0,0 }, fogOfWarDecal);
+}
+void DnDTool::RenderWindows()
+{
+	switch (currentEvent.first)
+	{
+		case Event::EVENT_INQUIRY:
+		{
+			windows[0].Render(this); //The Yes or No window
+			break;
+		}
+	}
 }
 
 void DnDTool::RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint)

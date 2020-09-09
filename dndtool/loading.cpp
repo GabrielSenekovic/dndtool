@@ -31,6 +31,7 @@ void DnDTool::LoadDecals()
 	selection = new olc::Decal(new olc::Sprite("./Assets/Selection.png"));
 	measuringLine = new olc::Decal(new olc::Sprite("./Assets/Measuring_Line.png"));
 	OnLoadDecals(buttonIcons, "./Assets/UI/");
+	OnLoadDecals(buttonIcons_Special, "./Assets/UI/Special_");
 
 	debugSquare = new olc::Decal(new olc::Sprite("./Assets/Debug_Square.png"));
 
@@ -91,6 +92,22 @@ void DnDTool::ConstructMaps()
 
 void DnDTool::LoadUI()
 {
+	windows =
+	{
+		window //The inquiry window, asking yes or no
+		(
+			{
+				button(buttonIcons_Special[1], {3, 65}, [&]() {*currentEvent.second = false; }),
+				button(buttonIcons_Special[2], {63, 65}, [&]() {currentEvent.first = Event::EVENT_NONE; })
+			},
+			new olc::Decal(new olc::Sprite("./Assets/UI/Window_Inquiry.png")),
+			{0,0}, "Do you want \nto quit?"
+		)
+	};
+	for (int i = 0; i < windows.size(); i++)
+	{
+		windows[i].position = { width / 2 - windows[i].background->sprite->width / 2, height / 2 - windows[i].background->sprite->height / 2 };
+	}
 	screens =
 	{
 		canvas()
@@ -98,13 +115,13 @@ void DnDTool::LoadUI()
 		//screen 1 is the start UI
 	};
 	float distanceBetweenButtons = 17;
-	screens[currentUI].modeButtons =
+	screens[currentUI].buttons =
 	{
 		button(buttonIcons[3], {752,15}, [&]() {interactionMode = InteractionMode::MOVE; }),
 		button(buttonIcons[1], {752,15 + distanceBetweenButtons},[&]() {interactionMode = InteractionMode::DRAW; }),
-		button(buttonIcons[2], {752,15 + distanceBetweenButtons * 2},[&]() {interactionMode = InteractionMode::MEASURE; })
+		button(buttonIcons[2], {752,15 + distanceBetweenButtons * 2},[&]() {interactionMode = InteractionMode::MEASURE; }),
 	};
-	screens[0].UIBorder = new olc::Decal(new olc::Sprite("./Assets/UI/UI_Border.png"));
+	screens[0].windows.push_back(new olc::Decal(new olc::Sprite("./Assets/UI/UI_Border.png")));
 }
 
 void DnDTool::LoadMap()

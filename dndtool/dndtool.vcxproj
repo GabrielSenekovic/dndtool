@@ -163,6 +163,7 @@
     <ClCompile Include="rendering.cpp" />
     <ClCompile Include="token.cpp" />
     <ClCompile Include="Canvas.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dndtool.h" />

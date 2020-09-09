@@ -2,8 +2,8 @@
 
 void DnDTool::canvas::Render(DnDTool* dndTool)
 {
-	olc::vf2d scale = { dndTool->width / UIBorder->sprite->width, dndTool->height / UIBorder->sprite->height };
-	dndTool->DrawDecal({ 0,0 }, UIBorder, scale);
+	olc::vf2d scale = { dndTool->width / windows[0]->sprite->width, dndTool->height / windows[0]->sprite->height };
+	dndTool->DrawDecal({ 0,0 }, windows[0], scale);
 	if (dndTool->selectedToken.icon != nullptr)
 	{
 		float widthOfPortraitFrame = 62.0f;
@@ -16,9 +16,9 @@ void DnDTool::canvas::Render(DnDTool* dndTool)
 }
 void DnDTool::canvas::RenderButtons(DnDTool* dndTool, olc::vf2d scale)
 {
-	for (int i = 0; i < modeButtons.size(); i++)
+	for (int i = 0; i < buttons.size(); i++)
 	{
-		dndTool->DrawDecal(modeButtons[i].position * scale, modeButtons[i].icons[0], scale);
+		dndTool->DrawDecal(buttons[i].position * scale, buttons[i].icons[0], scale);
 	}
 }
 void DnDTool::canvas::RenderText(DnDTool* dndTool)
