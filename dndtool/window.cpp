@@ -1,11 +1,46 @@
 #include "dndtool.h"
 
-DnDTool::window::window(std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in): buttons(buttons_in), background(background_in), position(position_in), text(text_in)
+DnDTool::window::window(std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, olc::vf2d revealedPosition_in): 
+buttons(buttons_in), background(background_in), position(position_in), text(text_in), state(Window_State::WINDOW_NONE), 
+unrevealedPosition(position_in), revealedPosition(revealedPosition_in){}
+
+void DnDTool::window::Update(float fElapsedTime)
 {
+	if (state == Window_State::WINDOW_NONE){return;}
+	switch (state)
+	{
+	case Window_State::WINDOW_REVEAL:
+		position.x--;
+		if (position.x >= revealedPosition.x)
+		{
+			position.x = revealedPosition.x;
+			state = Window_State::WINDOW_NONE;
+		}
+		break;
+	case Window_State::WINDOW_DISAPPEAR:
+		position.x++;
+		if (position.x <= unrevealedPosition.x)
+		{
+			position.x = unrevealedPosition.x;
+			state = Window_State::WINDOW_NONE;
+		}
+		break;
+	}
+}
+void DnDTool::window::ToggleReveal()
+{
+	if (position.x == unrevealedPosition.x)
+	{
+		state = Window_State::WINDOW_REVEAL;
+	}
+	else if (position.x == revealedPosition.x)
+	{
+		state = Window_State::WINDOW_DISAPPEAR;
+	}
 }
 void DnDTool::window::Render(DnDTool* dndTool)
 {
-	olc::vf2d scale = { dndTool->width / dndTool->screens[dndTool->currentUI].windows[0]->sprite->width, dndTool->height / dndTool->screens[dndTool->currentUI].windows[0]->sprite->height };
+	olc::vf2d scale = { dndTool->width / dndTool->screens[dndTool->currentUI].windows[0].background->sprite->width, dndTool->height / dndTool->screens[dndTool->currentUI].windows[0].background->sprite->height };
 	dndTool->DrawDecal(position * scale, background, scale);
 	for (int i = 0; i < buttons.size(); i++)
 	{

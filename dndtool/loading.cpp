@@ -128,7 +128,7 @@ void DnDTool::LoadUI()
 				button(buttonIcons_Special[2], {63, 65}, [&]() {currentEvent.first = Event::EVENT_NONE; })
 			},
 			new olc::Decal(new olc::Sprite("./Assets/UI/Window_Inquiry.png")),
-			{0,0}, "Do you want \nto quit?"
+			{0,0}, "Do you want \nto quit?", {0,0}
 		)
 	};
 	for (int i = 0; i < windows.size(); i++)
@@ -137,18 +137,51 @@ void DnDTool::LoadUI()
 	}
 	screens =
 	{
-		canvas()
-		//screen 0 is the map UI
+		canvas //screen 0 is the map UI
+		(
+			std::vector<window>
+			{
+				window //The UI frame. Window[0] is always the frame
+				(
+					{
+						button(buttonIcons[3], {752,15}, [&]() {interactionMode = InteractionMode::MOVE; }),
+						button(buttonIcons[1], {752,15 + 17},[&]() {interactionMode = InteractionMode::DRAW; }),
+						button(buttonIcons[2], {752,15 + 17 * 2},[&]() {interactionMode = InteractionMode::MEASURE; }),
+						button(buttonIcons[5], {752,15 + 17 * 3},[&]() { screens[0].windows[1].ToggleReveal(); }),
+					},new olc::Decal(new olc::Sprite("./Assets/UI/UI_Border.png")),
+					{0,0}, "", {0,0}
+				),
+				window //The token selection window. Appears when a button is pressed
+				(
+					{GetTokenButtons()}, //Fill up the window with all of the tokens
+					new olc::Decal(new olc::Sprite("./Assets/UI/Window_TokenSelect.png")),
+					{width, 0}, "", {width - 100, 0}
+				)
+			},
+			{0,0}
+		)
 		//screen 1 is the start UI
 	};
-	float distanceBetweenButtons = 17;
-	screens[currentUI].buttons =
+}
+std::vector<DnDTool::button> DnDTool::GetTokenButtons()
+{
+	std::vector<DnDTool::button> buttons = {};
+
+	for (size_t i = 0; i < Characters.size(); i++)
 	{
-		button(buttonIcons[3], {752,15}, [&]() {interactionMode = InteractionMode::MOVE; }),
-		button(buttonIcons[1], {752,15 + distanceBetweenButtons},[&]() {interactionMode = InteractionMode::DRAW; }),
-		button(buttonIcons[2], {752,15 + distanceBetweenButtons * 2},[&]() {interactionMode = InteractionMode::MEASURE; }),
-	};
-	screens[0].windows.push_back(new olc::Decal(new olc::Sprite("./Assets/UI/UI_Border.png")));
+		buttons.push_back(button(Characters[i].icon, { 0,0 }, [&, i]()
+			{
+				if (heldToken == nullptr)
+				{
+					heldToken = new token();
+					maps[currentMap].characters.push_back(Characters[i]);
+					heldToken = &maps[currentMap].characters.back();
+					heldToken->position = { -1,-1 };
+				}
+			}
+		));
+	}
+	return buttons;
 }
 
 void DnDTool::LoadMap()

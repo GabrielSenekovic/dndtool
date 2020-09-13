@@ -2,20 +2,24 @@
 
 void DnDTool::CheckInput()
 {
-	olc::vf2d UIscale = { width / screens[currentUI].windows[0]->sprite->width, height / screens[currentUI].windows[0]->sprite->height };
+	olc::vf2d UIscale = { width / screens[currentUI].FrameWidth(), height / screens[currentUI].FrameHeight() };
 	hoveredButton = nullptr;
-	for (int i = 0; i < screens[currentUI].buttons.size(); i++)
-	{
-		if (GetMouseX() > screens[currentUI].buttons[i].position.x * UIscale.x && GetMouseX() < (screens[currentUI].buttons[i].position.x + screens[currentUI].buttons[i].Width()) * UIscale.x &&
-			GetMouseY() > screens[currentUI].buttons[i].position.y * UIscale.y && GetMouseY() < (screens[currentUI].buttons[i].position.y + screens[currentUI].buttons[i].Height()) * UIscale.y)
-		{
-			hoveredButton = &screens[currentUI].buttons[i];
-			break;
-		}
-	}
+
 	if (currentEvent.first == Event::EVENT_INQUIRY)
 	{
 		hoveredButton = windows[0].CheckButtonCollision({ (float)GetMouseX(), (float)GetMouseY() }, UIscale);
+	}
+	else
+	{
+		for (int i = 0; i < screens[currentUI].windows.size(); i++)
+		{
+			button* temp = screens[currentUI].windows[i].CheckButtonCollision({ (float)GetMouseX(), (float)GetMouseY() }, UIscale);
+			if (temp != nullptr)
+			{
+				hoveredButton = temp;
+				break;
+			}
+		}
 	}
 
 	if (GetKey(olc::CTRL).bHeld)
@@ -59,8 +63,9 @@ void DnDTool::CheckInput()
 	{
 		if (GetMouse(0).bPressed)
 		{
-			olc::vf2d UIscale = { width / screens[currentUI].windows[0]->sprite->width, height / screens[currentUI].windows[0]->sprite->height };
-			if (hoveredButton != nullptr) { hoveredButton->OnPress(); };
+			if (hoveredButton != nullptr) { hoveredButton->OnPress(); return; };
+
+			olc::vf2d UIscale = { width / screens[currentUI].FrameWidth(), height / screens[currentUI].FrameHeight() };
 			switch (interactionMode)
 			{
 			case InteractionMode::MOVE:
@@ -185,21 +190,21 @@ void DnDTool::EraseDraw(DrawMode mode)
 void DnDTool::PickUpToken()
 {
 	olc::vf2d MousePositionInXY = GetMousePositionInXY();
-	for (int i = 0; i < Characters.size(); i++)
+	for (int i = 0; i < maps[currentMap].characters.size(); i++)
 	{
-		if (Characters[i].position.x == MousePositionInXY.x && Characters[i].position.y == MousePositionInXY.y)
+		if (maps[currentMap].characters[i].position.x == MousePositionInXY.x && maps[currentMap].characters[i].position.y == MousePositionInXY.y)
 		{
 			//if there is something here
 			if (heldToken == nullptr)
 			{
-				heldToken = &Characters[i];
-				previousTokenPosition = Characters[i].position;
-				Characters[i].position = { -1,-1 }; //Instead of making the icon invisible, I move it offscreen
+				heldToken = &maps[currentMap].characters[i];
+				previousTokenPosition = maps[currentMap].characters[i].position;
+				maps[currentMap].characters[i].position = { -1,-1 }; //Instead of making the icon invisible, I move it offscreen
 			}
 			else
 			{
-				std::swap(Characters[i], *heldToken);
-				Characters[i].position = { MousePositionInXY.x,MousePositionInXY.y }; //Instead of making the icon invisible, I move it offscreen
+				std::swap(maps[currentMap].characters[i], *heldToken);
+				maps[currentMap].characters[i].position = { MousePositionInXY.x,MousePositionInXY.y }; //Instead of making the icon invisible, I move it offscreen
 			}
 			return;
 		}
@@ -220,8 +225,8 @@ void DnDTool::PickUpToken()
 
 void DnDTool::ToggleUI()
 {
-	screens[currentUI].UIoffset = { 70.0f * (screens[currentUI].UIoffset.x == 0) * width / screens[currentUI].windows[0]->sprite->width, 16.0f * (screens[currentUI].UIoffset.y == 0) * height / screens[currentUI].windows[0]->sprite->height };
-	screens[currentUI].scaleUIOffset = screens[currentUI].UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / screens[currentUI].windows[0]->sprite->width, 32 * height / screens[currentUI].windows[0]->sprite->height };
+	screens[currentUI].UIoffset = { 70.0f * (screens[currentUI].UIoffset.x == 0) * width / screens[currentUI].FrameWidth(), 16.0f * (screens[currentUI].UIoffset.y == 0) * height / screens[currentUI].FrameHeight() };
+	screens[currentUI].scaleUIOffset = screens[currentUI].UIoffset.x == 0 ? olc::vf2d{ 0,0 } : olc::vf2d{ 48 * width / screens[currentUI].FrameWidth(), 32 * height / screens[currentUI].FrameHeight()};
 
 	scaleAffectedByUI = maps[currentMap].Width() > maps[currentMap].Height() ? //Is the width bigger than the height?
 		((width - screens[currentUI].scaleUIOffset.x) / (maps[currentMap].Height())) : //If its wider than tall, then scale based on width

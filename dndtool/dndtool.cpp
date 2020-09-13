@@ -6,6 +6,7 @@ bool DnDTool::OnUserUpdate(float fElepsedTime)
 	{
 		selectionAngle += selectionRotationSpeed;
 	}
+	screens[currentUI].Update(fElepsedTime);
 	RenderAll();
 	CheckInput();
 	return playing;

@@ -32,9 +32,9 @@ void DnDTool::RenderMap()
 		RenderGrid(amountOfColumns, tileWidthRatio, tileableSize, gridWidth, scale, iconToTileRatio);
 	}
 	//Draw all tokens
-	for (unsigned int i = 0; i < Characters.size(); i++)
+	for (unsigned int i = 0; i < maps[currentMap].characters.size(); i++)
 	{
-		Characters[i].Render(this, tileWidthRatio, tileableSize, gridWidth, scale, iconToTileRatio);
+		maps[currentMap].characters[i].Render(this, tileWidthRatio, tileableSize, gridWidth, scale, iconToTileRatio);
 	}
 }
 void DnDTool::RenderGrid(float amountOfColumns, float tileWidthRatio, float tileableSize, int gridWidth, olc::vf2d tileScale, float iconToTileRatio)

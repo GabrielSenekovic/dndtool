@@ -1,9 +1,23 @@
 #include "dndtool.h"
 
+DnDTool::canvas::canvas(std::vector<window> windows_in, olc::vf2d UIoffset_in):windows(windows_in), UIoffset(UIoffset_in){}
+
+void DnDTool::canvas::Update(float fElapsedTime)
+{
+	for (int i = 0; i < windows.size(); i++)
+	{
+		windows[i].Update(fElapsedTime);
+	}
+}
+
 void DnDTool::canvas::Render(DnDTool* dndTool)
 {
-	olc::vf2d scale = { dndTool->width / windows[0]->sprite->width, dndTool->height / windows[0]->sprite->height };
-	dndTool->DrawDecal({ 0,0 }, windows[0], scale);
+	olc::vf2d scale = { dndTool->width / FrameWidth(), dndTool->height / FrameHeight() };
+	for (int i = 0; i < windows.size(); i++)
+	{
+		windows[i].Render(dndTool);
+	}
+
 	if (dndTool->selectedToken.icon != nullptr)
 	{
 		float widthOfPortraitFrame = 62.0f;
@@ -11,15 +25,7 @@ void DnDTool::canvas::Render(DnDTool* dndTool)
 		dndTool->DrawDecal({ 4 * scale.x,16 * scale.y}, dndTool->selectedToken.icon_unmasked, { ratio,ratio });
 		dndTool->DrawStringDecal({ 4 * scale.x, 86 * scale.y }, dndTool->selectedToken.name, olc::WHITE, { 0.5f, 0.5f });
 	}
-	RenderButtons(dndTool, scale);
 	RenderText(dndTool);
-}
-void DnDTool::canvas::RenderButtons(DnDTool* dndTool, olc::vf2d scale)
-{
-	for (int i = 0; i < buttons.size(); i++)
-	{
-		dndTool->DrawDecal(buttons[i].position * scale, buttons[i].icons[0], scale);
-	}
 }
 void DnDTool::canvas::RenderText(DnDTool* dndTool)
 {
@@ -32,4 +38,12 @@ void DnDTool::canvas::RenderText(DnDTool* dndTool)
 	dndTool->DrawStringDecal({ 2,7 }, "[Mouse X: " + std::to_string(dndTool->GetMouseX()) + " Y: " + std::to_string(dndTool->GetMouseY()) + "]" +
 		" [Zoom:" + std::to_string(dndTool->zoom.x) + "]"
 		, olc::WHITE, { 0.5f, 0.5f });
+}
+float DnDTool::canvas::FrameWidth()
+{
+	return windows[0].background->sprite->width;
+}
+float DnDTool::canvas::FrameHeight()
+{
+	return windows[0].background->sprite->height;
 }

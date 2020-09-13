@@ -41,56 +41,44 @@ class DnDTool : public olc::PixelGameEngine
 	};
 	struct window
 	{
+		enum Window_State
+		{
+			WINDOW_NONE,
+			WINDOW_REVEAL,
+			WINDOW_DISAPPEAR
+		};
 		//This struct takes care of each image that carries buttons
-		olc::vf2d position;
+		olc::vf2d position; olc::vf2d unrevealedPosition; olc::vf2d revealedPosition;
 		std::vector<button> buttons;
 		olc::Decal* background;
 		std::string text;
+		Window_State state;
 
-		window(std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in);
-		void Render(DnDTool* dndTool);
+		window(std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, olc::vf2d revealedPosition_in);
+
+		void Update(float fElapsedTime);
+
+		void ToggleReveal();
 		button* CheckButtonCollision(olc::vf2d mouse, olc::vf2d UIscale);
+
+		void Render(DnDTool* dndTool);
 	};
 	struct canvas
 	{
 		//This struct takes care of each scene
-		std::vector<olc::Decal*> windows = {}; // index 0 is always the frame
+		std::vector<window> windows = {}; // index 0 is always the frame
 		olc::vf2d UIoffset = { 0,0 }; //how offset the entire image is due to the UI
-		std::vector<button> buttons;
 		olc::vf2d scaleUIOffset = { 0,0 };
 
-		void Render(DnDTool* dndTool);
-		void RenderButtons(DnDTool* dndTool, olc::vf2d scale);
-		void RenderText(DnDTool* dndTool);
-	};
-	struct map
-	{
-		struct link
-		{
-			std::string mapIdentifier;
-			/*since a link cant hold a map, it can hold a string,
-			and then this string will be searched inside the vector of maps*/
-			olc::vf2d position;
-		public:
-			link(std::string mapIdentifier_in, olc::vf2d position_in)
-			{
-				mapIdentifier = mapIdentifier_in;
-				position = position_in;
-			}
-		};
-		std::vector<link> links;
-		olc::Decal* background = nullptr;
-		int tileScale;
-	public:
-		std::string mapIdentifier;
-		int commonDivisorIndex = 0;
+		canvas(std::vector<window> windows_in, olc::vf2d UIoffset_in);
 
-		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in);
-		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in, int commonDivisor_in);
-		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in);
-		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in);
-		float Width();
-		float Height();
+		void Update(float fElapsedTime);
+
+		float FrameWidth();
+		float FrameHeight();
+
+		void Render(DnDTool* dndTool);
+		void RenderText(DnDTool* dndTool);
 	};
 	struct token
 	{
@@ -116,6 +104,36 @@ class DnDTool : public olc::PixelGameEngine
 		void Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio);
 		void RenderText(DnDTool* dndTool, float tileWidthRatio, float tileableSize, bool isSelected, olc::vf2d renderPosition);
 	};
+	struct map
+	{
+		struct link
+		{
+			std::string mapIdentifier;
+			/*since a link cant hold a map, it can hold a string,
+			and then this string will be searched inside the vector of maps*/
+			olc::vf2d position;
+		public:
+			link(std::string mapIdentifier_in, olc::vf2d position_in)
+			{
+				mapIdentifier = mapIdentifier_in;
+				position = position_in;
+			}
+		};
+		std::vector<token> characters; //All saved characters in the map
+		std::vector<link> links;
+		olc::Decal* background = nullptr;
+		int tileScale;
+	public:
+		std::string mapIdentifier;
+		int commonDivisorIndex = 0;
+
+		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in);
+		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in, int commonDivisor_in);
+		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in);
+		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in);
+		float Width();
+		float Height();
+	};
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Here follows variables related to different interaction modes:
@@ -139,7 +157,7 @@ class DnDTool : public olc::PixelGameEngine
 	std::vector<olc::Decal*> backgrounds;
 	std::vector<std::pair<olc::Decal*, olc::Decal*>> icons;
 	std::vector<olc::Decal*> cursors;
-	std::vector<token> Characters;
+	std::vector<token> Characters; //A list of all loaded tokens
 	float iconSizeAdjustment = 0.75f; //Makes sure the icon is smaller than the tile it is on
 
 	olc::Decal* gridTile = nullptr;
@@ -181,7 +199,8 @@ public:
 	void ConstructMaps();
 	void LoadMap();
 	void LoadUI();
-
+	std::vector<button> GetTokenButtons();
+	
 	//saving.cpp
 	bool SaveCharacters();
 
