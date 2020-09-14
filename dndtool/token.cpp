@@ -1,5 +1,9 @@
 #include "dndtool.h"
 
+DnDTool::token::token(){}
+DnDTool::token::token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::Pixel tint_in, const std::string& name_in, int index_in): 
+icon(icon_in.second), icon_unmasked(icon_in.first), tint(tint_in), name(name_in), icon_index(index_in){}
+
 void DnDTool::token::Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio)
 {
 	iconToTileRatio *= dndTool->iconSizeAdjustment; //Shrinks token to be smaller than tile

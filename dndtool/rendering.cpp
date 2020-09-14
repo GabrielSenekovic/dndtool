@@ -7,7 +7,7 @@ void DnDTool::RenderAll()
 	RenderMap();
 	
 	//DrawLinks(commonDivisor);
-	//RenderFog();
+	RenderFog();
 	if (screens[currentUI].UIoffset.x > 0)
 	{
 		screens[currentUI].Render(this);
@@ -117,6 +117,7 @@ void DnDTool::RenderCursor()
 		{
 			int index = GetMouse(1).bHeld ? 4 : 3;
 			DrawDecal(position, cursors[index], scale);
+			DrawDecal({GetMouseX() - (float)eraserMask->GetWidth() / 2 , GetMouseY() - (float)eraserMask->GetHeight()/2}, drawIndicator, { 1,1 });
 			break;
 		}
 	}

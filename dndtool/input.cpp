@@ -3,7 +3,12 @@
 void DnDTool::CheckInput()
 {
 	olc::vf2d UIscale = { width / screens[currentUI].FrameWidth(), height / screens[currentUI].FrameHeight() };
-	hoveredButton = nullptr;
+	
+	if (hoveredButton != nullptr)
+	{
+		TEA(hoveredButton->currentIcon, 1, ? 0 : 2);
+		hoveredButton = nullptr;
+	}
 
 	if (currentEvent.first == Event::EVENT_INQUIRY)
 	{
@@ -11,7 +16,7 @@ void DnDTool::CheckInput()
 	}
 	else
 	{
-		for (int i = 0; i < screens[currentUI].windows.size(); i++)
+		for (size_t i = 0; i < screens[currentUI].windows.size(); i++)
 		{
 			button* temp = screens[currentUI].windows[i].CheckButtonCollision({ (float)GetMouseX(), (float)GetMouseY() }, UIscale);
 			if (temp != nullptr)
@@ -20,6 +25,10 @@ void DnDTool::CheckInput()
 				break;
 			}
 		}
+	}
+	if (hoveredButton != nullptr)
+	{
+		TEA(hoveredButton->currentIcon, 0, ? 1 : 2);
 	}
 
 	if (GetKey(olc::CTRL).bHeld)
@@ -57,6 +66,10 @@ void DnDTool::CheckInput()
 		if (GetMouse(0).bPressed && interactionMode == InteractionMode::DRAW)
 		{
 			FillFog(olc::BLACK);
+		}
+		if (GetMouse(1).bPressed && interactionMode == InteractionMode::DRAW)
+		{
+			FillFog(olc::BLANK);
 		}
 	}
 	else
@@ -97,11 +110,11 @@ void DnDTool::CheckInput()
 				int gridWidth = (maps[currentMap].Width() * (scaleUnaffectedByUI / commonDivisor));
 				selectionAngle = selectedTile == GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x ? selectionAngle : 0;
 				selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
-				for (int i = 0; i < Characters.size(); i++)
+				for (size_t i = 0; i < maps[currentMap].characters.size(); i++)
 				{
-					if (Characters[i].position.y * gridWidth + Characters[i].position.x == selectedTile)
+					if (maps[currentMap].characters[i].position.y* gridWidth + maps[currentMap].characters[i].position.x == selectedTile)
 					{
-						selectedToken = Characters[i];
+						selectedToken = maps[currentMap].characters[i];
 					}
 				}
 				break;
@@ -156,12 +169,13 @@ void DnDTool::FillFog(olc::Pixel color)
 }
 void DnDTool::EraseDraw(DrawMode mode)
 {
-	for (size_t i = GetMouseX(); i < GetMouseX() + eraserMask->GetWidth(); i++)
+	int x = GetMouseX() - eraserMask->GetWidth() / 2; int y = GetMouseY() - eraserMask->GetHeight() / 2;
+	for (size_t i = x; i < x + eraserMask->GetWidth(); i++)
 	{
-		for (size_t j = GetMouseY(); j < GetMouseY() + eraserMask->GetHeight(); j++)
+		for (size_t j = y; j < y + eraserMask->GetHeight(); j++)
 		{
 			Gdiplus::Color c;
-			eraserMask->GetPixel(i - GetMouseX(), j - GetMouseY(), &c);
+			eraserMask->GetPixel(i - x, j - y, &c);
 			olc::Pixel pixel;
 			switch (mode)
 			{
@@ -190,7 +204,7 @@ void DnDTool::EraseDraw(DrawMode mode)
 void DnDTool::PickUpToken()
 {
 	olc::vf2d MousePositionInXY = GetMousePositionInXY();
-	for (int i = 0; i < maps[currentMap].characters.size(); i++)
+	for (size_t i = 0; i < maps[currentMap].characters.size(); i++)
 	{
 		if (maps[currentMap].characters[i].position.x == MousePositionInXY.x && maps[currentMap].characters[i].position.y == MousePositionInXY.y)
 		{

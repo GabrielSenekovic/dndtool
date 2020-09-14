@@ -11,7 +11,7 @@ void DnDTool::window::Update(float fElapsedTime)
 	{
 	case Window_State::WINDOW_REVEAL:
 		position.x--;
-		if (position.x >= revealedPosition.x)
+		if (position.x <= revealedPosition.x)
 		{
 			position.x = revealedPosition.x;
 			state = Window_State::WINDOW_NONE;
@@ -19,7 +19,7 @@ void DnDTool::window::Update(float fElapsedTime)
 		break;
 	case Window_State::WINDOW_DISAPPEAR:
 		position.x++;
-		if (position.x <= unrevealedPosition.x)
+		if (position.x >= unrevealedPosition.x)
 		{
 			position.x = unrevealedPosition.x;
 			state = Window_State::WINDOW_NONE;
@@ -42,18 +42,18 @@ void DnDTool::window::Render(DnDTool* dndTool)
 {
 	olc::vf2d scale = { dndTool->width / dndTool->screens[dndTool->currentUI].windows[0].background->sprite->width, dndTool->height / dndTool->screens[dndTool->currentUI].windows[0].background->sprite->height };
 	dndTool->DrawDecal(position * scale, background, scale);
-	for (int i = 0; i < buttons.size(); i++)
+	for (size_t i = 0; i < buttons.size(); i++)
 	{
-		dndTool->DrawDecal(buttons[i].position * scale + position * scale, buttons[i].icons[0], scale);
+		dndTool->DrawDecal(buttons[i].position * scale + position * scale, buttons[i].icons[buttons[i].currentIcon], scale * buttons[i].scale);
 	}
 	dndTool->DrawStringDecal(position * scale + 10 * scale, text, olc::WHITE, scale);
 }
 DnDTool::button* DnDTool::window::CheckButtonCollision(olc::vf2d mouse, olc::vf2d UIscale)
 {
-	for (int i = 0; i < buttons.size(); i++)
+	for (size_t i = 0; i < buttons.size(); i++)
 	{
-		if (mouse.x > buttons[i].position.x * UIscale.x + position.x * UIscale.x && mouse.x < (buttons[i].position.x + buttons[i].Width()) * UIscale.x + position.x * UIscale.x &&
-			mouse.y > buttons[i].position.y * UIscale.y + position.y * UIscale.y && mouse.y < (buttons[i].position.y + buttons[i].Height()) * UIscale.y + position.y * UIscale.y)
+		if (mouse.x > buttons[i].position.x * UIscale.x + position.x * UIscale.x && mouse.x < buttons[i].position.x * UIscale.x + buttons[i].Width() * UIscale.x * buttons[i].scale.x + position.x * UIscale.x &&
+			mouse.y > buttons[i].position.y * UIscale.y + position.y * UIscale.y && mouse.y < buttons[i].position.y *UIscale.y + buttons[i].Height() * UIscale.y * buttons[i].scale.y + position.y * UIscale.y)
 		{
 			return &buttons[i];
 		}

@@ -31,11 +31,15 @@ class DnDTool : public olc::PixelGameEngine
 
 	struct button
 	{
-		olc::Decal* icons[3] = {};
+		olc::Decal* icons[3] = {}; int currentIcon = 0;
+
 		olc::vf2d position = { 0,0 };
+		olc::vf2d scale = { 1,1 };
+
 		std::function<void()> function;
 
-		button(olc::Decal* icon_in, olc::vf2d position_in, std::function<void()> function_in);
+		button(std::array<olc::Decal*, 3> icon_in, olc::vf2d position_in, std::function<void()> function_in); //Normal buttons
+		button(olc::Decal* icon_in, olc::vf2d position_in, olc::vf2d scale_in, std::function<void()> function_in); //Token buttons
 		bool OnPress();
 		float Width(); float Height();
 	};
@@ -85,22 +89,13 @@ class DnDTool : public olc::PixelGameEngine
 		olc::Decal* icon = nullptr;
 		olc::Decal* icon_unmasked = nullptr;
 		olc::Pixel tint;
-		olc::vf2d position;
+		olc::vf2d position; //Tokens dont need a position
 		std::string name;
 		int icon_index;
 
-		token()
-		{
+		token();
+		token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::Pixel tint_in, const std::string& name_in, int index_in);
 
-		}
-		token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::Pixel tint_in, const std::string& name_in, int index_in)
-		{
-			icon = icon_in.second;
-			icon_unmasked = icon_in.first;
-			tint = tint_in;
-			name = name_in;
-			icon_index = index_in;
-		}
 		void Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio);
 		void RenderText(DnDTool* dndTool, float tileWidthRatio, float tileableSize, bool isSelected, olc::vf2d renderPosition);
 	};
@@ -147,8 +142,9 @@ class DnDTool : public olc::PixelGameEngine
 	token selectedToken;
 	//DRAW
 	olc::Sprite* fogOfWarSprite = nullptr;
-	olc::Decal* fogOfWarDecal = nullptr; //Perhaps I only need to draw the sprite if I draw it on a higher layer
+	olc::Decal* fogOfWarDecal = nullptr;
 	Gdiplus::Bitmap* eraserMask = nullptr;
+	olc::Decal* drawIndicator = nullptr;
 	//MEASURE
 	olc::Decal* measuringLine = nullptr;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,8 +170,8 @@ class DnDTool : public olc::PixelGameEngine
 	std::vector<window> windows; //Different windows that may be called from anywhere
 	std::vector<canvas> screens; //Different screens, i.e start screen, load screen, map screen
 	int currentUI;
-	std::vector<olc::Decal*> buttonIcons;
-	std::vector<olc::Decal*> buttonIcons_Special; //Quit, Exit, Save, Load, Yes, No
+	std::vector<std::array<olc::Decal*, 3>> buttonIcons;
+	std::vector<std::array<olc::Decal*, 3>> buttonIcons_Special; //Quit, Exit, Save, Load, Yes, No
 	float scaleUnaffectedByUI = 0;
 	float scaleAffectedByUI = 0;
 	button* hoveredButton = nullptr;
@@ -194,7 +190,11 @@ public:
 
 	//loading.cpp
 	bool OnUserCreate()override;
-	void LoadDecals(); void OnLoadDecals(std::vector<olc::Decal*>& list, std::string path); void OnLoadDecalsMasked(std::vector<std::pair<olc::Decal*, olc::Decal*>>& list, std::string path);
+	void LoadDecals(); 
+	void OnLoadDecals(std::vector<olc::Decal*>& list, std::string path); 
+	void OnLoadDecals(std::vector<std::array<olc::Decal*, 3>>& list, std::string path);
+	void OnLoadDecalsMasked(std::vector<std::pair<olc::Decal*, olc::Decal*>>& list, std::string path);
+
 	void LoadCharacters();
 	void ConstructMaps();
 	void LoadMap();
@@ -205,6 +205,7 @@ public:
 	bool SaveCharacters();
 
 	void MaskSprite(olc::Sprite* sprite);
+	void BrightenSprite(olc::Sprite* sprite);
 
 	bool OnUserUpdate(float fElepsedTime)override;
 

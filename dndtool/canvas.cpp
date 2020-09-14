@@ -4,7 +4,7 @@ DnDTool::canvas::canvas(std::vector<window> windows_in, olc::vf2d UIoffset_in):w
 
 void DnDTool::canvas::Update(float fElapsedTime)
 {
-	for (int i = 0; i < windows.size(); i++)
+	for (size_t i = 0; i < windows.size(); i++)
 	{
 		windows[i].Update(fElapsedTime);
 	}
@@ -13,9 +13,9 @@ void DnDTool::canvas::Update(float fElapsedTime)
 void DnDTool::canvas::Render(DnDTool* dndTool)
 {
 	olc::vf2d scale = { dndTool->width / FrameWidth(), dndTool->height / FrameHeight() };
-	for (int i = 0; i < windows.size(); i++)
+	for (size_t i = windows.size(); i > 0; i--)
 	{
-		windows[i].Render(dndTool);
+		windows[i-1].Render(dndTool);
 	}
 
 	if (dndTool->selectedToken.icon != nullptr)

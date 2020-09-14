@@ -2,6 +2,13 @@
 #define GABNUBUTILITIES_H
 #include <vector>
 
+#define TEA(val, comparison, ternary) (val = val == comparison ternary);
+//Ternary Equivalence Assignment
+//x = x==3? 1:2; turns into
+//TEA(x, 3, ?1:2);
+//Its only really useful for readability if x is reeeeaaaaally long
+//It also means that you only have to write x once
+
 namespace gnu
 {
 	inline std::vector<int> findCommonDivisors(int a, int b)
