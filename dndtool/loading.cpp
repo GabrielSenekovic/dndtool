@@ -131,9 +131,9 @@ void DnDTool::BrightenSprite(olc::Sprite* sprite)
 	{
 		int x = (int)i % sprite->width; int y = (int)i / sprite->width;
 		olc::Pixel pixel = olc::Pixel(
-			sprite->GetPixel({ x, y }).r + brightness > 255? 255: sprite->GetPixel({ x, y }).r + brightness,
-			sprite->GetPixel({ x, y }).g + brightness > 255 ? 255 : sprite->GetPixel({ x, y }).g + brightness,
-			sprite->GetPixel({ x, y }).b + brightness > 255 ? 255 : sprite->GetPixel({ x, y }).b + brightness,
+			min(sprite->GetPixel({ x, y }).r + brightness, 255),
+			min(sprite->GetPixel({ x, y }).g + brightness, 255),
+			min(sprite->GetPixel({ x, y }).b + brightness, 255),
 			sprite->GetPixel({ x,y }).a);
 		sprite->SetPixel(x, y, pixel);
 	}
@@ -196,6 +196,12 @@ void DnDTool::LoadUI()
 								screens[0].windows[0].buttons[0].currentIcon = 2;
 								screens[0].windows[0].buttons[1].currentIcon = 0;
 								screens[0].windows[0].buttons[2].currentIcon = 0;
+								if (selectedToken.icon != nullptr)
+								{
+									screens[0].windows[0].buttons[4].active = true;
+									screens[0].windows[0].buttons[5].active = true;
+									screens[0].windows[0].buttons[6].active = true;
+								}
 							}),
 						button(buttonIcons[1], {752,15 + 17},[&]() 
 							{
@@ -203,6 +209,9 @@ void DnDTool::LoadUI()
 								screens[0].windows[0].buttons[0].currentIcon = 0;
 								screens[0].windows[0].buttons[1].currentIcon = 2;
 								screens[0].windows[0].buttons[2].currentIcon = 0;
+								screens[0].windows[0].buttons[4].active = false;
+								screens[0].windows[0].buttons[5].active = false;
+								screens[0].windows[0].buttons[6].active = false;
 							}),
 						button(buttonIcons[2], {752,15 + 17 * 2},[&]() 
 							{
@@ -210,8 +219,15 @@ void DnDTool::LoadUI()
 								screens[0].windows[0].buttons[0].currentIcon = 0;
 								screens[0].windows[0].buttons[1].currentIcon = 0;
 								screens[0].windows[0].buttons[2].currentIcon = 2;
+								screens[0].windows[0].buttons[4].active = false;
+								screens[0].windows[0].buttons[5].active = false;
+								screens[0].windows[0].buttons[6].active = false;
 							}),
 						button(buttonIcons[5], {752,15 + 17 * 3},[&]() { screens[0].windows[1].ToggleReveal(); }),
+						button(buttonIcons[8], {4,92}, [&]() {/*down character*/}, false),
+						button(buttonIcons[4], {4 + 16,92},[&]() {/*kill character*/}, false),
+						button(buttonIcons[9], {4 + 16 * 2,92},[&]() {/*delete character*/}, false)
+
 					},new olc::Decal(new olc::Sprite("./Assets/UI/UI_Border.png")),
 					{0,0}, "", {0,0}
 				),
@@ -219,7 +235,7 @@ void DnDTool::LoadUI()
 				(
 					{GetTokenButtons()}, //Fill up the window with all of the tokens
 					new olc::Decal(new olc::Sprite("./Assets/UI/Window_TokenSelect.png")),
-					{width, 15}, "", {width - 100, 15}
+					{width, 15}, "", {width - 100, 15}, 3
 				)
 			},
 			{0,0}

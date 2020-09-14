@@ -16,36 +16,36 @@ void DnDTool:: Quit()
 	SaveCharacters();
 	for (size_t i = 0; i < icons.size(); i++)
 	{
-		delete icons[i].first;
-		delete icons[i].second;
+		DEL(icons[i].first);
+		DEL(icons[i].second);
 	}
-	for (size_t i = 0; i < cursors.size(); i++){delete cursors[i];}
-	for (size_t i = 0; i < backgrounds.size(); i++){delete backgrounds[i];}
+	for (size_t i = 0; i < cursors.size(); i++) { DEL(cursors[i]) }
+	for (size_t i = 0; i < backgrounds.size(); i++){DEL(backgrounds[i])}
 	for (size_t i = 0; i < buttonIcons.size(); i++)
 	{
 		for (size_t j = 0; j < buttonIcons[i].size(); j++)
 		{
-			delete buttonIcons[i][j];
+			DEL(buttonIcons[i][j]);
 		}
 	}
 	for (size_t i = 0; i < buttonIcons_Special.size(); i++)
 	{
 		for (size_t j = 0; j < buttonIcons_Special[i].size(); j++)
 		{
-			delete buttonIcons_Special[i][j];
+			DEL(buttonIcons_Special[i][j]);
 		}
 	}
-	delete gridTile;
-	delete fogOfWarSprite;
-	delete fogOfWarDecal;
-	delete eraserMask;
-	delete drawIndicator;
-	delete measuringLine;
-	delete selection;
-	delete heldToken;
-	delete iconMask;
-	delete hoveredButton;
-	delete debugSquare;
+	DEL(gridTile);
+	DEL(fogOfWarSprite);
+	DEL(fogOfWarDecal);
+	DEL(eraserMask);
+	DEL(drawIndicator);
+	DEL(measuringLine);
+	DEL(selection);
+	if (heldToken) { delete heldToken; }
+	DEL(iconMask);
+	hoveredButton = nullptr;
+	DEL(debugSquare);
 }
 
 int main()

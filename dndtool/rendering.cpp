@@ -124,7 +124,7 @@ void DnDTool::RenderCursor()
 }
 void DnDTool::RenderFog()
 {
-	delete fogOfWarDecal; fogOfWarDecal = nullptr;
+	DEL(fogOfWarDecal);
 	fogOfWarDecal = new olc::Decal(fogOfWarSprite);
 	DrawDecal({ 0,0 }, fogOfWarDecal);
 }

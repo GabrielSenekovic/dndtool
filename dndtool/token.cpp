@@ -37,6 +37,6 @@ void DnDTool::token::RenderText(DnDTool* dndTool, float tileWidthRatio, float ti
 
 	dndTool->RenderText(name, { renderPosition.x + centerer, renderPosition.y + yPositionModifier * tileableSize}, { scale,  scale }, tint);
 
-	dndTool->RenderImage(dndTool->debugSquare, { renderPosition.x + centerer, renderPosition.y + yPositionModifier * tileableSize }, {0.02,0.02}, tint);
-	dndTool->RenderImage(dndTool->debugSquare, { renderPosition.x + nameLength + centerer, renderPosition.y + yPositionModifier * tileableSize }, { 0.02,0.02 }, tint);
+	//dndTool->RenderImage(dndTool->debugSquare, { renderPosition.x + centerer, renderPosition.y + yPositionModifier * tileableSize }, {0.02,0.02}, tint);
+	//dndTool->RenderImage(dndTool->debugSquare, { renderPosition.x + nameLength + centerer, renderPosition.y + yPositionModifier * tileableSize }, { 0.02,0.02 }, tint);
 }

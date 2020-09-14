@@ -8,6 +8,9 @@
 //TEA(x, 3, ?1:2);
 //Its only really useful for readability if x is reeeeaaaaally long
 //It also means that you only have to write x once
+#define DEL(val) {delete val; val = nullptr;};
+//Simple and nice way to both delete and set to nullptr
+//Only use when you want to do both
 
 namespace gnu
 {

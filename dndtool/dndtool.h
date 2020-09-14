@@ -36,10 +36,14 @@ class DnDTool : public olc::PixelGameEngine
 		olc::vf2d position = { 0,0 };
 		olc::vf2d scale = { 1,1 };
 
+		bool active = true;
+
 		std::function<void()> function;
 
 		button(std::array<olc::Decal*, 3> icon_in, olc::vf2d position_in, std::function<void()> function_in); //Normal buttons
+		button(std::array<olc::Decal*, 3> icon_in, olc::vf2d position_in, std::function<void()> function_in, bool active_in); //Normal buttons that are hidden
 		button(olc::Decal* icon_in, olc::vf2d position_in, olc::vf2d scale_in, std::function<void()> function_in); //Token buttons
+
 		bool OnPress();
 		float Width(); float Height();
 	};
@@ -57,10 +61,13 @@ class DnDTool : public olc::PixelGameEngine
 		olc::Decal* background;
 		std::string text;
 		Window_State state;
+		float speed = 1;
 
-		window(std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, olc::vf2d revealedPosition_in);
+		window(const std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, olc::vf2d revealedPosition_in);
+		window(const std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, olc::vf2d revealedPosition_in, float speed_in);
 
 		void Update(float fElapsedTime);
+		void Move(float fElapsedTime, olc::vf2d& a, olc::vf2d b, olc::vf2d source);
 
 		void ToggleReveal();
 		button* CheckButtonCollision(olc::vf2d mouse, olc::vf2d UIscale);
