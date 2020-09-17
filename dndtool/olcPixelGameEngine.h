@@ -338,6 +338,7 @@ namespace olc
 		T x = 0;
 		T y = 0;
 		v2d_generic() : x(0), y(0)                        {                                                            }
+		v2d_generic(T _x) : x(_x), y(_x)				  {															   } //Added by Gabriel
 		v2d_generic(T _x, T _y) : x(_x), y(_y)            {                                                            }
 		v2d_generic(const v2d_generic& v) : x(v.x), y(v.y){                                                            }
 		T mag()                                           { return std::sqrt(x * x + y * y);                           }
@@ -346,7 +347,8 @@ namespace olc
 		v2d_generic  perp()                               { return v2d_generic(-y, x);                                 }
 		T dot(const v2d_generic& rhs)                     { return this->x * rhs.x + this->y * rhs.y;                  }
 		T cross(const v2d_generic& rhs)                   { return this->x * rhs.y - this->y * rhs.x;                  }
-		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y);}
+		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y);} //Added by Gabriel
+		v2d_generic  operator  + (const T& rhs) const	  { return v2d_generic(this->x + rhs, this->y + rhs);		   }
 		v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y);}
 		v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs);    }
 		v2d_generic  operator *  (const v2d_generic& rhs) const { return v2d_generic(this->x * rhs.x, this->y * rhs.y);}
@@ -356,6 +358,9 @@ namespace olc
 		v2d_generic& operator -= (const v2d_generic& rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this;          }
 		v2d_generic& operator *= (const T& rhs)           { this->x *= rhs; this->y *= rhs; return *this;              }
 		v2d_generic& operator /= (const T& rhs)           { this->x /= rhs; this->y /= rhs; return *this;              }
+		bool		 operator==(const v2d_generic& rhs)	  const { 
+			return (x == rhs.x && y == rhs.y);				   } //Added by Gabriel
+		bool	     operator==(const T& rhs)			  const { return (x == rhs && y == rhs);           } //Added by Gabriel
 		operator v2d_generic<int32_t>() const { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
 		operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) };     }
 		operator v2d_generic<double>() const { return { static_cast<double>(this->x), static_cast<double>(this->y) };  }
@@ -375,6 +380,7 @@ namespace olc
 	{ return v2d_generic<T>((T)(lhs / (double)rhs.x), (T)(lhs / (double)rhs.y)); }
 	template<class T> inline v2d_generic<T> operator / (const int& lhs, const v2d_generic<T>& rhs)
 	{ return v2d_generic<T>((T)(lhs / (int)rhs.x), (T)(lhs / (int)rhs.y)); }
+
 
 	typedef v2d_generic<int32_t> vi2d;
 	typedef v2d_generic<uint32_t> vu2d;
@@ -444,6 +450,7 @@ namespace olc
 	public:
 		int32_t width = 0;
 		int32_t height = 0;
+		olc::vf2d dim() { return {(float) width,(float) height }; };
 		enum Mode { NORMAL, PERIODIC };
 		enum Flip { NONE = 0, HORIZ = 1, VERT = 2 };
 

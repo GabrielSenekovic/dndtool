@@ -23,3 +23,12 @@ bool DnDTool::SaveCharacters()
 	fclose(file);
 	return true;
 }
+bool DnDTool::SaveMaps()
+{
+	std::string path = "./Assets/SaveData/maps/";
+	for (DnDTool::map map : maps)
+	{
+		map.Save(path, map);
+	}
+	return true;
+}

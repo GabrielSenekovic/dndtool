@@ -2,7 +2,7 @@
 
 void DnDTool::RenderAll()
 {
-	DrawDecal({ screens[currentUI].UIoffset.x,screens[currentUI].UIoffset.y }, maps[currentMap].background, { scaleAffectedByUI * zoom.x,scaleAffectedByUI * zoom.y}); //Draws the background
+	DrawDecal(screens[currentUI].UIoffset, maps[currentMap].background, scaleAffectedByUI * zoom); //Draws the background
 
 	RenderMap();
 	
@@ -25,7 +25,7 @@ void DnDTool::RenderMap()
 
 	float iconToTileRatio = (float)gridTile->sprite->width / (float)Characters[0].icon->sprite->width;
 
-	olc::vf2d scale = { tileableSize / tileWidthRatio, tileableSize / tileWidthRatio };
+	olc::vf2d scale = { tileableSize / tileWidthRatio};
 
 	if (interactionMode == InteractionMode::MOVE || interactionMode == InteractionMode::MEASURE)
 	{
@@ -41,19 +41,20 @@ void DnDTool::RenderGrid(float amountOfColumns, float tileWidthRatio, float tile
 {
 	for (size_t i = 0; i < (maps[currentMap].Width() * amountOfColumns) * (maps[currentMap].Height() * amountOfColumns); i++)
 	{
-		int x = i % gridWidth; int y = i / gridWidth;
+		int x = i % gridWidth; int y = i / gridWidth; olc::vf2d xy = { (float)x,(float)y };
 
 		bool isThisHighlighted = ((GetMousePositionInXY().x == x && (GetMousePositionInXY().y == y)));
 		olc::Pixel tint = isThisHighlighted ? olc::RED : gridColor;
 
-		olc::vf2d position = {(float)x * gridTile->sprite->width * tileScale.x,(float)y * gridTile->sprite->height * tileScale.y };
+		olc::vf2d gridDim = gridTile->sprite->dim();
+		olc::vf2d position = xy * gridDim * tileScale;
 
 		if (i == selectedTile)
 		{
-			float centeringModifier = (gridTile->sprite->width * tileableSize) - ((gridTile->sprite->width * tileableSize)) / 2;
+			float centeringModifier = gridDim.x * tileableSize / 2;
 			olc::vf2d scale = tileScale * iconToTileRatio;
-			olc::vf2d centerOfRotation = { (float)selection->sprite->width / 2 , (float)selection->sprite->height / 2 };
-			olc::vf2d selectionPosition = { (x * gridTile->sprite->width * tileableSize + centeringModifier) / tileWidthRatio, (y * gridTile->sprite->height * tileableSize + centeringModifier) / tileWidthRatio };
+			olc::vf2d centerOfRotation = selection->sprite->dim() / 2;
+			olc::vf2d selectionPosition = (xy * gridDim * tileableSize + centeringModifier) / tileWidthRatio;
 
 			RenderImage(selection, selectionPosition, scale, olc::RED, selectionAngle, centerOfRotation);
 		}
@@ -80,13 +81,14 @@ void DnDTool::RenderCursor()
 	bool grabbable = false;
 	olc::vf2d scale = { 0.5f,0.5f };
 	olc::vf2d position = { (GetMouseX() - 10) * zoom.x, (GetMouseY() - 10) * zoom.y };
-	for (size_t i = 0; i < Characters.size(); i++)
+
+	if (hoveredButton)
 	{
-		if (Characters[i].position.x == GetMousePositionInXY().x && Characters[i].position.y == GetMousePositionInXY().y)
-		{
-			grabbable = true;
-		}
-		if (hoveredButton != nullptr)
+		grabbable = true;
+	}
+	for(DnDTool::token token: maps[currentMap].characters)
+	{
+		if (token.position == GetMousePositionInXY())
 		{
 			grabbable = true;
 		}
@@ -97,25 +99,25 @@ void DnDTool::RenderCursor()
 		{
 			if (grabbable && heldToken == nullptr)
 			{
-				DrawDecal(position, cursors[2], scale);
+				DrawDecal(position, cursors[3], scale);
 			}
 			else if (heldToken != nullptr)
 			{
-				float tokenScale = (float)gridTile->sprite->width / (float)heldToken->icon->sprite->width;
+				float tokenScale = (float)gridTile->sprite->width / (float)heldToken->icon->sprite->width * commonDivisor / tileDivisor;
 				float scaleShrinker = 0.75f; //to make sure the token isnt the same size as the tile, its a bit smaller
 				tokenScale *= scaleShrinker;
-				DrawDecal({ (float)GetMouseX() - 10, (float)GetMouseY() - 10 }, heldToken->icon, { tokenScale * commonDivisor / tileDivisor, tokenScale * commonDivisor / tileDivisor }, heldToken->tint);
-				DrawDecal(position, cursors[1], scale);
+				DrawDecal({ (float)GetMouseX() - heldToken->icon->sprite->width * tokenScale / 2, (float)GetMouseY() - heldToken->icon->sprite->height * tokenScale / 2 }, heldToken->icon, {tokenScale}, heldToken->tint);
+				DrawDecal(position, cursors[2], scale);
 			}
 			else
 			{
-				DrawDecal(position, cursors[0], scale);
+				DrawDecal(position, cursors[4], scale);
 			}
 			break;
 		}
 		case InteractionMode::DRAW:
 		{
-			int index = GetMouse(1).bHeld ? 4 : 3;
+			int index = GetMouse(1).bHeld ? 1 : 0;
 			DrawDecal(position, cursors[index], scale);
 			DrawDecal({GetMouseX() - (float)eraserMask->GetWidth() / 2 , GetMouseY() - (float)eraserMask->GetHeight()/2}, drawIndicator, { 1,1 });
 			break;
@@ -143,15 +145,14 @@ void DnDTool::RenderWindows()
 void DnDTool::RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint)
 {
 	//This functions adjusts for UI offset and zoom before finally being sent to the drawing function
-	DrawDecal({ position.x * zoom.x + screens[currentUI].UIoffset.x, position.y * zoom.y + screens[currentUI].UIoffset.y }, image, { scale.x * zoom.x, scale.y * zoom.y }, tint);
+	DrawDecal(position * zoom + screens[currentUI].UIoffset, image, scale * zoom, tint);
 }
 void DnDTool::RenderImage(olc::Decal* image, olc::vf2d position, olc::vf2d scale, olc::Pixel tint, float angle, olc::vf2d center)
 {
 	//This functions adjusts for UI offset and zoom before finally being sent to the drawing function
-	DrawRotatedDecal({ position.x * zoom.x + screens[currentUI].UIoffset.x, position.y * zoom.y + screens[currentUI].UIoffset.y },
-		image, angle, center, { scale.x * zoom.x, scale.y * zoom.y }, tint);
+	DrawRotatedDecal(position * zoom + screens[currentUI].UIoffset,image, angle, center, scale * zoom, tint);
 }
 void DnDTool::RenderText(std::string text, olc::vf2d position, olc::vf2d scale, olc::Pixel tint)
 {
-	DrawStringDecal({ position.x * zoom.x + screens[currentUI].UIoffset.x, position.y * zoom.y + screens[currentUI].UIoffset.y}, text, tint, { scale.x * zoom.x, scale.y * zoom.y });
+	DrawStringDecal(position * zoom + screens[currentUI].UIoffset, text, tint, scale * zoom);
 }

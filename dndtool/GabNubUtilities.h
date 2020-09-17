@@ -11,6 +11,8 @@
 #define DEL(val) {delete val; val = nullptr;};
 //Simple and nice way to both delete and set to nullptr
 //Only use when you want to do both
+#define forall(i,a,b) for(size_t i=a;i<b;i++)
+//Goes through all elements of a list
 
 namespace gnu
 {

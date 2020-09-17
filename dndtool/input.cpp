@@ -114,7 +114,7 @@ void DnDTool::CheckInput()
 				{
 					if (maps[currentMap].characters[i].position.y* gridWidth + maps[currentMap].characters[i].position.x == selectedTile)
 					{
-						selectedToken = maps[currentMap].characters[i];
+						selectedToken = &maps[currentMap].characters[i];
 						screens[0].windows[0].buttons[4].active = true;
 						screens[0].windows[0].buttons[5].active = true;
 						screens[0].windows[0].buttons[6].active = true;

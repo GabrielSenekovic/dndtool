@@ -162,8 +162,9 @@
     <ClCompile Include="olcPixelGameEngine.cpp" />
     <ClCompile Include="rendering.cpp" />
     <ClCompile Include="saving.cpp" />
+    <ClCompile Include="spriteManipulation.cpp" />
     <ClCompile Include="token.cpp" />
-    <ClCompile Include="Canvas.cpp" />
+    <ClCompile Include="canvas.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>

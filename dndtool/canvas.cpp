@@ -18,12 +18,12 @@ void DnDTool::canvas::Render(DnDTool* dndTool)
 		windows[i-1].Render(dndTool);
 	}
 
-	if (dndTool->selectedToken.icon != nullptr)
+	if (dndTool->selectedToken && dndTool->selectedToken->icon)
 	{
 		float widthOfPortraitFrame = 62.0f;
-		float ratio = widthOfPortraitFrame / dndTool->selectedToken.icon->sprite->width * scale.x;
-		dndTool->DrawDecal({ 4 * scale.x,16 * scale.y}, dndTool->selectedToken.icon_unmasked, { ratio,ratio });
-		dndTool->DrawStringDecal({ 4 * scale.x, 86 * scale.y }, dndTool->selectedToken.name, olc::WHITE, { 0.5f, 0.5f });
+		float ratio = widthOfPortraitFrame / dndTool->selectedToken->icon->sprite->width * scale.x;
+		dndTool->DrawDecal({ 4 * scale.x,16 * scale.y}, dndTool->selectedToken->icon_unmasked, { ratio,ratio });
+		dndTool->DrawStringDecal({ 4 * scale.x, 86 * scale.y }, dndTool->selectedToken->name, olc::WHITE, { 0.5f, 0.5f });
 	}
 	RenderText(dndTool);
 }

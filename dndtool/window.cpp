@@ -53,7 +53,7 @@ void DnDTool::window::Render(DnDTool* dndTool)
 	if (background) { dndTool->DrawDecal(position * scale, background, scale); }
 	for (size_t i = 0; i < buttons.size(); i++)
 	{
-		if (buttons[i].active){dndTool->DrawDecal(buttons[i].position * scale + position * scale, buttons[i].icons[buttons[i].currentIcon], scale * buttons[i].scale);}
+		if (buttons[i].active){dndTool->DrawDecal(scale *(position + buttons[i].position), buttons[i].icons[buttons[i].currentIcon], scale * buttons[i].scale);}
 	}
 	dndTool->DrawStringDecal(position * scale + 10 * scale, text, olc::WHITE, scale);
 }

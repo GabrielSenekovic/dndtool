@@ -2,7 +2,8 @@ Buttons:
 
 Left click: Draw, Erase, Move
 
-Q: Changes gridcolor from white to black
+Q: Toggles UI
+W: Changes gridcolor from white to black
 
 CTRL + Q: Move mode
 CTRL + W: Measure mode
@@ -12,3 +13,4 @@ CTRL + N: Shrink board
 CTRL + M: Enlargen board
 
 CTRL + Left click: Fill entire screen with fog of war
+CTRL + right click: Destroy fog of war

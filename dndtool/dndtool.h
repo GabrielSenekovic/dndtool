@@ -95,13 +95,18 @@ class DnDTool : public olc::PixelGameEngine
 	{
 		olc::Decal* icon = nullptr;
 		olc::Decal* icon_unmasked = nullptr;
+		olc::Decal* icon_dead = nullptr;
+		olc::Decal* icon_deadcrossed = nullptr;
+
 		olc::Pixel tint;
 		olc::vf2d position; //Tokens dont need a position
 		std::string name;
 		int icon_index;
+		float angle = 0;
+		bool dead = false;
 
 		token();
-		token(std::pair<olc::Decal*, olc::Decal*> icon_in, olc::Pixel tint_in, const std::string& name_in, int index_in);
+		token(std::vector<olc::Decal*> icon_in, olc::Pixel tint_in, const std::string& name_in, int index_in);
 
 		void Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio);
 		void RenderText(DnDTool* dndTool, float tileWidthRatio, float tileableSize, bool isSelected, olc::vf2d renderPosition);
@@ -124,17 +129,22 @@ class DnDTool : public olc::PixelGameEngine
 		std::vector<token> characters; //All saved characters in the map
 		std::vector<link> links;
 		olc::Decal* background = nullptr;
+		int background_index = 0; //Needed when saving and loading to figure out what image to load
 		int tileScale;
 	public:
 		std::string mapIdentifier;
 		int commonDivisorIndex = 0;
 
-		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in);
-		map(std::string mapIdentifier_in, olc::Decal* background_in, int tileScale_in, int commonDivisor_in);
-		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in);
-		map(std::string mapIdentifier_in, olc::Decal* background_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in);
+		map(std::string mapIdentifier_in, int background_index_in, int tileScale_in);
+		map(std::string mapIdentifier_in, int background_index_in, int tileScale_in, int commonDivisor_in);
+		map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in, int tileScale_in);
+		map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in);
+		~map();
+
 		float Width();
 		float Height();
+
+		bool Save(std::string path, const DnDTool::map map);
 	};
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,11 +152,12 @@ class DnDTool : public olc::PixelGameEngine
 	//MOVE
 	int selectedTile = -1; //if you right click on a tile, it becomes selected. This hold the index
 	//Also use this for measuring as the start point
+	olc::Sprite* deathCross = nullptr;
 	token* heldToken = nullptr;
 	olc::vi2d previousTokenPosition = { 0,0 }; //in order to check if the heldtoken was the one that was selected
 	olc::Decal* selection = nullptr; //Decal that will show up behind selected tokens
 	float selectionAngle = 0; float selectionRotationSpeed = 0.01f; //Use this to rotate selection image
-	token selectedToken;
+	token* selectedToken;
 	//DRAW
 	olc::Sprite* fogOfWarSprite = nullptr;
 	olc::Decal* fogOfWarDecal = nullptr;
@@ -157,8 +168,7 @@ class DnDTool : public olc::PixelGameEngine
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::vector<map> maps;
-	std::vector<olc::Decal*> backgrounds;
-	std::vector<std::pair<olc::Decal*, olc::Decal*>> icons;
+	std::vector<std::vector<olc::Decal*>> icons;
 	std::vector<olc::Decal*> cursors;
 	std::vector<token> Characters; //A list of all loaded tokens
 	float iconSizeAdjustment = 0.75f; //Makes sure the icon is smaller than the tile it is on
@@ -200,7 +210,7 @@ public:
 	void LoadDecals(); 
 	void OnLoadDecals(std::vector<olc::Decal*>& list, std::string path); 
 	void OnLoadDecals(std::vector<std::array<olc::Decal*, 3>>& list, std::string path);
-	void OnLoadDecalsMasked(std::vector<std::pair<olc::Decal*, olc::Decal*>>& list, std::string path);
+	void OnLoadDecalsMasked(std::vector<std::vector<olc::Decal*>>& list, std::string path);
 
 	void LoadCharacters();
 	void ConstructMaps();
@@ -210,9 +220,13 @@ public:
 	
 	//saving.cpp
 	bool SaveCharacters();
+	bool SaveMaps();
 
+	//spriteManipulation.cpp
 	void MaskSprite(olc::Sprite* sprite);
 	void BrightenSprite(olc::Sprite* sprite);
+	void GrayscaleSprite(olc::Sprite* sprite);
+	void FuseSprites(olc::Sprite* sprite_1, olc::Sprite* sprite_2);
 
 	bool OnUserUpdate(float fElepsedTime)override;
 

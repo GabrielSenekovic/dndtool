@@ -14,13 +14,15 @@ bool DnDTool::OnUserUpdate(float fElepsedTime)
 void DnDTool:: Quit()
 {
 	SaveCharacters();
+	SaveMaps();
 	for (size_t i = 0; i < icons.size(); i++)
 	{
-		DEL(icons[i].first);
-		DEL(icons[i].second);
+		for (size_t j = 0; j < icons[i].size(); j++)
+		{
+			DEL(icons[i][j]);
+		}
 	}
 	for (size_t i = 0; i < cursors.size(); i++) { DEL(cursors[i]) }
-	for (size_t i = 0; i < backgrounds.size(); i++){DEL(backgrounds[i])}
 	for (size_t i = 0; i < buttonIcons.size(); i++)
 	{
 		for (size_t j = 0; j < buttonIcons[i].size(); j++)
