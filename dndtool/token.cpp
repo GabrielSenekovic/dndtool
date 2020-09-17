@@ -42,3 +42,22 @@ void DnDTool::token::RenderText(DnDTool* dndTool, float tileWidthRatio, float ti
 	//dndTool->RenderImage(dndTool->debugSquare, { renderPosition.x + centerer, renderPosition.y + yPositionModifier * tileableSize }, {0.02,0.02}, tint);
 	//dndTool->RenderImage(dndTool->debugSquare, { renderPosition.x + nameLength + centerer, renderPosition.y + yPositionModifier * tileableSize }, { 0.02,0.02 }, tint);
 }
+bool DnDTool::token::Save(FILE* file, std::vector<uint8_t>& fileData, uint8_t& bytesWritten)
+{
+	fileData.resize(bytesWritten + name.size() + 1 + sizeof(int) + sizeof(float)*3 + sizeof(bool));
+
+	memcpy(fileData.data() + bytesWritten, name.data(), name.size());
+	bytesWritten += name.size() + 1;
+	memcpy(fileData.data() + bytesWritten, &icon_index, sizeof(int));
+	bytesWritten += sizeof(int);
+	memcpy(fileData.data() + bytesWritten, &angle, sizeof(float));
+	bytesWritten += sizeof(float);
+	memcpy(fileData.data() + bytesWritten, &position.x, sizeof(float));
+	bytesWritten += sizeof(float);
+	memcpy(fileData.data() + bytesWritten, &position.y, sizeof(float));
+	bytesWritten += sizeof(float);
+	memcpy(fileData.data() + bytesWritten, &dead, sizeof(bool));
+	bytesWritten += sizeof(bool);
+
+	return true;
+}

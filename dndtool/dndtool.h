@@ -99,7 +99,7 @@ class DnDTool : public olc::PixelGameEngine
 		olc::Decal* icon_deadcrossed = nullptr;
 
 		olc::Pixel tint;
-		olc::vf2d position; //Tokens dont need a position
+		olc::vf2d position;
 		std::string name;
 		int icon_index;
 		float angle = 0;
@@ -110,6 +110,8 @@ class DnDTool : public olc::PixelGameEngine
 
 		void Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio);
 		void RenderText(DnDTool* dndTool, float tileWidthRatio, float tileableSize, bool isSelected, olc::vf2d renderPosition);
+
+		bool Save(FILE* file, std::vector<uint8_t>& fileData, uint8_t& bytesWritten);
 	};
 	struct map
 	{
@@ -130,16 +132,14 @@ class DnDTool : public olc::PixelGameEngine
 		std::vector<link> links;
 		olc::Decal* background = nullptr;
 		int background_index = 0; //Needed when saving and loading to figure out what image to load
-		int tileScale;
 	public:
 		std::string mapIdentifier;
 		int commonDivisorIndex = 0;
 
-		map(std::string mapIdentifier_in, int background_index_in, int tileScale_in);
-		map(std::string mapIdentifier_in, int background_index_in, int tileScale_in, int commonDivisor_in);
-		map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in, int tileScale_in);
-		map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in, int tileScale_in, int commonDivisor_in);
-		~map();
+		map(std::string mapIdentifier_in, int background_index_in);
+		map(std::string mapIdentifier_in, int background_index_in, int commonDivisor_in);
+		map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in);
+		map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in, int commonDivisor_in);
 
 		float Width();
 		float Height();

@@ -13,8 +13,8 @@ bool DnDTool::OnUserUpdate(float fElepsedTime)
 }	
 void DnDTool:: Quit()
 {
-	SaveCharacters();
 	SaveMaps();
+	SaveCharacters();
 	for (size_t i = 0; i < icons.size(); i++)
 	{
 		for (size_t j = 0; j < icons[i].size(); j++)
