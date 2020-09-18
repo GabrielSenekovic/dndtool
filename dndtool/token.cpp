@@ -3,6 +3,11 @@
 DnDTool::token::token(){}
 DnDTool::token::token(std::vector<olc::Decal*> icon_in, olc::Pixel tint_in, const std::string& name_in, int index_in): 
 icon(icon_in[1]), icon_unmasked(icon_in[0]), icon_dead(icon_in[2]), icon_deadcrossed(icon_in[3]), tint(tint_in), name(name_in), icon_index(index_in){}
+DnDTool::token::token(const std::string& name_in, std::vector<olc::Decal*> icon_in, int index_in, float angle_in, olc::vf2d position_in, bool dead_in)
+	:name(name_in), angle(angle_in), position(position_in), dead(dead_in), icon_index(index_in),
+	icon_unmasked(icon_in[0]), icon(icon_in[1]), icon_dead(icon_in[2]), icon_deadcrossed(icon_in[3])
+{
+}
 
 void DnDTool::token::Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio)
 {

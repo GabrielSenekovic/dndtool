@@ -107,6 +107,7 @@ class DnDTool : public olc::PixelGameEngine
 
 		token();
 		token(std::vector<olc::Decal*> icon_in, olc::Pixel tint_in, const std::string& name_in, int index_in);
+		token(const std::string& name_in, std::vector<olc::Decal*> icon_in, int index_in, float angle_in, olc::vf2d position_in, bool dead_in);
 
 		void Render(DnDTool* dndTool, float tileWidthRatio, float tileableSize, float gridWidth, olc::vf2d scale, float iconToTileRatio);
 		void RenderText(DnDTool* dndTool, float tileWidthRatio, float tileableSize, bool isSelected, olc::vf2d renderPosition);
@@ -132,13 +133,12 @@ class DnDTool : public olc::PixelGameEngine
 		std::vector<link> links;
 		olc::Decal* background = nullptr;
 		int background_index = 0; //Needed when saving and loading to figure out what image to load
-	public:
+
 		std::string mapIdentifier;
 		int commonDivisorIndex = 0;
 
-		map(std::string mapIdentifier_in, int background_index_in);
-		map(std::string mapIdentifier_in, int background_index_in, int commonDivisor_in);
 		map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in);
+		map(std::string mapIdentifier_in, int background_index_in, std::vector<token> tokens_in, int commonDivisor_in);
 		map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in, int commonDivisor_in);
 
 		float Width();
@@ -175,7 +175,6 @@ class DnDTool : public olc::PixelGameEngine
 
 	olc::Decal* gridTile = nullptr;
 	int tileDivisor = 256;
-	int commonDivisorIndex = 8; //arbitrary number. This must be changed
 	olc::Pixel gridColor = olc::WHITE;
 	float commonDivisor = 0;
 
@@ -214,7 +213,7 @@ public:
 
 	void LoadCharacters();
 	void ConstructMaps();
-	void LoadMap();
+	void LoadMap(std::string name);
 	void LoadUI();
 	std::vector<button> GetTokenButtons();
 	

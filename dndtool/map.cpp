@@ -1,18 +1,5 @@
 #include "dndtool.h"
 
-DnDTool::map::map(std::string mapIdentifier_in, int background_index_in):background_index(background_index_in)
-{
-	mapIdentifier = mapIdentifier_in;
-	links = {};
-	background = new olc::Decal(new olc::Sprite("./Assets/Backgrounds/" + std::to_string(background_index) + ".png"));
-}
-DnDTool::map::map(std::string mapIdentifier_in, int background_index_in, int commonDivisor_in) :background_index(background_index_in)
-{
-	mapIdentifier = mapIdentifier_in;
-	links = {};
-	background = new olc::Decal(new olc::Sprite("./Assets/Backgrounds/" + std::to_string(background_index) + ".png"));
-	commonDivisorIndex = commonDivisor_in;
-}
 DnDTool::map::map(std::string mapIdentifier_in, int background_index_in, std::vector<link> links_in) :background_index(background_index_in)
 {
 	mapIdentifier = mapIdentifier_in;
@@ -23,6 +10,13 @@ DnDTool::map::map(std::string mapIdentifier_in, int background_index_in, std::ve
 {
 	mapIdentifier = mapIdentifier_in;
 	links = links_in;
+	background = new olc::Decal(new olc::Sprite("./Assets/Backgrounds/" + std::to_string(background_index) + ".png"));
+	commonDivisorIndex = commonDivisor_in;
+}
+DnDTool::map::map(std::string mapIdentifier_in, int background_index_in, std::vector<token> tokens_in, int commonDivisor_in) :background_index(background_index_in)
+{
+	mapIdentifier = mapIdentifier_in;
+	characters = tokens_in;
 	background = new olc::Decal(new olc::Sprite("./Assets/Backgrounds/" + std::to_string(background_index) + ".png"));
 	commonDivisorIndex = commonDivisor_in;
 }

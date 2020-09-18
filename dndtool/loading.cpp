@@ -3,10 +3,10 @@ bool DnDTool::OnUserCreate()
 {
 	LoadDecals();
 	LoadCharacters();
-	ConstructMaps();
 	LoadUI();
+	LoadMap("MapName");
+	ConstructMaps();
 	ToggleUI();
-	LoadMap();
 	return true;
 }
 
@@ -115,11 +115,11 @@ void DnDTool::ConstructMaps()
 {
 	fogOfWarSprite = new olc::Sprite(width, height);
 	FillFog(olc::BLANK);
-	maps =
+	/*maps =
 	{
 		map("MapName", 1, std::vector<map::link> { map::link("Hello", {5,5}) }, 4)
-	};
-	scaleUnaffectedByUI = maps[currentMap].Width() > maps[currentMap].Height() ? (width / (maps[currentMap].Width())) : (height / maps[currentMap].Height());
+	};*/
+	//scaleUnaffectedByUI = maps[currentMap].Width() > maps[currentMap].Height() ? (width / (maps[currentMap].Width())) : (height / maps[currentMap].Height());
 }
 
 void DnDTool::LoadUI()
@@ -240,18 +240,68 @@ std::vector<DnDTool::button> DnDTool::GetTokenButtons()
 	return buttons;
 }
 
-void DnDTool::LoadMap()
+void DnDTool::LoadMap(std::string name_in)
 {
-	SetScaleAffectedByUI();
-	std::vector<int> commonDivisors = gnu::findCommonDivisors(maps[currentMap].Width(), maps[currentMap].Height());
-	int gridWidth = (scaleUnaffectedByUI / commonDivisors[commonDivisorIndex + 1] * maps[currentMap].Width());
-	for (size_t i = 0; i < commonDivisors.size(); i++)
+	std::ifstream in("./Assets/SaveData/maps/" + name_in + ".txt", std::ifstream::ate | std::ifstream::binary);
+	uint8_t fileSize = in.tellg();
+
+	FILE* file;
+	fopen_s(&file, ("./Assets/SaveData/maps/" + name_in + ".txt").c_str(), "rb");
+	if (!file) return;
+	std::vector<uint8_t> fileData = {};
+	fileData.resize(fileSize);
+	uint8_t bytesRead = 0;
+
+	fread(fileData.data(), 1, fileSize, file);
+
+	std::string name((const char*)(fileData.data() + bytesRead));
+	bytesRead += strlen(name.c_str()) + 1;
+	int backgroundIndex = *(fileData.data() + bytesRead);
+	bytesRead += sizeof(int);
+	int commonDivisorIndex = *(fileData.data() + bytesRead);
+	bytesRead += sizeof(int);
+
+	std::vector<token> tokens = {};
+
+	while (bytesRead < fileSize)
 	{
-		if (commonDivisors[i] >= 50)
-		{
-			commonDivisorIndex = i;
-			break;
-		}
+		std::string token_name((const char*)(fileData.data() + bytesRead));
+		bytesRead += strlen(token_name.c_str()) + 1;
+		int token_icon_index = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(int);
+		float token_angle = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(float);
+		float token_x = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(float);
+		float token_y = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(float);
+		olc::vf2d token_position = { token_x, token_y };
+		bool token_dead = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(bool);
+		tokens.push_back(token(token_name, icons[token_icon_index], token_icon_index, token_angle, token_position, token_dead));
 	}
-	commonDivisor = commonDivisors[commonDivisorIndex];
+
+	maps.push_back
+	(
+		map(name, backgroundIndex, tokens ,commonDivisorIndex)
+	);
+
+	fclose(file);
+
+	scaleUnaffectedByUI = maps[currentMap].Width() > maps[currentMap].Height() ? (width / (maps[currentMap].Width())) : (height / maps[currentMap].Height());
+	SetScaleAffectedByUI();
+	if (commonDivisor == 0)
+	{
+		std::vector<int> commonDivisors = gnu::findCommonDivisors(maps[currentMap].Width(), maps[currentMap].Height());
+		int gridWidth = (scaleUnaffectedByUI / commonDivisors[maps[currentMap].commonDivisorIndex + 1] * maps[currentMap].Width());
+		for (size_t i = 0; i < commonDivisors.size(); i++)
+		{
+			if (commonDivisors[i] >= 50)
+			{
+				maps[currentMap].commonDivisorIndex = i;
+				break;
+			}
+		}
+		commonDivisor = commonDivisors[maps[currentMap].commonDivisorIndex];
+	}
 }

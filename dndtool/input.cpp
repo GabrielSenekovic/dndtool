@@ -49,19 +49,19 @@ void DnDTool::CheckInput()
 		{
 			std::vector<int> commonDivisors = gnu::findCommonDivisors(maps[currentMap].Width(), maps[currentMap].Height());
 
-			int gridWidth = (scaleUnaffectedByUI / commonDivisors[commonDivisorIndex + 1] * maps[currentMap].Width());
+			int gridWidth = (scaleUnaffectedByUI / commonDivisors[maps[currentMap].commonDivisorIndex + 1] * maps[currentMap].Width());
 
-			commonDivisorIndex += 1 * (gridWidth >= 8);
-			commonDivisor = commonDivisors[commonDivisorIndex];
+			maps[currentMap].commonDivisorIndex += 1 * (gridWidth >= 8);
+			commonDivisor = commonDivisors[maps[currentMap].commonDivisorIndex];
 		}
 		if (GetKey(olc::N).bPressed)
 		{
 			std::vector<int> commonDivisors = gnu::findCommonDivisors(maps[currentMap].Width(), maps[currentMap].Height());
 
-			int gridWidth = (scaleUnaffectedByUI / commonDivisors[commonDivisorIndex - 1] * maps[currentMap].Width());
+			int gridWidth = (scaleUnaffectedByUI / commonDivisors[maps[currentMap].commonDivisorIndex - 1] * maps[currentMap].Width());
 
-			commonDivisorIndex -= 1 * (gridWidth <= 50);
-			commonDivisor = commonDivisors[commonDivisorIndex];
+			maps[currentMap].commonDivisorIndex -= 1 * (gridWidth <= 50);
+			commonDivisor = commonDivisors[maps[currentMap].commonDivisorIndex];
 		}
 		if (GetMouse(0).bPressed && interactionMode == InteractionMode::DRAW)
 		{
