@@ -6,6 +6,9 @@ DnDTool::window::window(const std::vector<button> buttons_in, olc::Decal* backgr
 DnDTool::window::window(const std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, olc::vf2d revealedPosition_in, float speed_in) :
 	buttons(buttons_in), background(background_in), position(position_in), text(text_in), state(Window_State::WINDOW_NONE),
 	unrevealedPosition(position_in), revealedPosition(revealedPosition_in), speed(speed_in) {}
+DnDTool::window::window(const std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, Window_State activity_in):
+	buttons(buttons_in), background(background_in), position(position_in), text(text_in), state(activity_in),
+	unrevealedPosition(position_in) {}
 
 void DnDTool::window::Update(float fElapsedTime)
 {
@@ -49,6 +52,7 @@ void DnDTool::window::ToggleReveal()
 }
 void DnDTool::window::Render(DnDTool* dndTool)
 {
+	if (state == Window_State::WINDOW_INACTIVE) { return; }
 	olc::vf2d scale = { dndTool->width / dndTool->screens[dndTool->currentUI].windows[0].background->sprite->width, dndTool->height / dndTool->screens[dndTool->currentUI].windows[0].background->sprite->height };
 	if (background) { dndTool->DrawDecal(position * scale, background, scale); }
 	for (size_t i = 0; i < buttons.size(); i++)
@@ -59,6 +63,7 @@ void DnDTool::window::Render(DnDTool* dndTool)
 }
 DnDTool::button* DnDTool::window::CheckButtonCollision(olc::vf2d mouse, olc::vf2d UIscale)
 {
+	if (state == Window_State::WINDOW_INACTIVE) { return nullptr; }
 	for (size_t i = 0; i < buttons.size(); i++)
 	{
 		if (buttons[i].active && mouse.x > buttons[i].position.x * UIscale.x + position.x * UIscale.x && mouse.x < buttons[i].position.x * UIscale.x + buttons[i].Width() * UIscale.x * buttons[i].scale.x + position.x * UIscale.x &&

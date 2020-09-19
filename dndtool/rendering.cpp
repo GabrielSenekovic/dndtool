@@ -6,7 +6,7 @@ void DnDTool::RenderAll()
 
 	RenderMap();
 	
-	//DrawLinks(commonDivisor);
+	RenderLinks(commonDivisor);
 	RenderFog();
 	if (screens[currentUI].UIoffset.x > 0)
 	{
@@ -27,7 +27,7 @@ void DnDTool::RenderMap()
 
 	olc::vf2d scale = { tileableSize / tileWidthRatio};
 
-	if (interactionMode == InteractionMode::MOVE || interactionMode == InteractionMode::MEASURE)
+	if (interactionMode != DRAW)
 	{
 		RenderGrid(amountOfColumns, tileWidthRatio, tileableSize, gridWidth, scale, iconToTileRatio);
 	}
@@ -39,12 +39,13 @@ void DnDTool::RenderMap()
 }
 void DnDTool::RenderGrid(float amountOfColumns, float tileWidthRatio, float tileableSize, int gridWidth, olc::vf2d tileScale, float iconToTileRatio)
 {
+	olc::Pixel selectedTint = interactionMode == MOVE ? olc::RED : interactionMode == MEASURE ? (olc::Pixel(255, 125, 0)) : olc::BLUE;
 	for (size_t i = 0; i < (maps[currentMap].Width() * amountOfColumns) * (maps[currentMap].Height() * amountOfColumns); i++)
 	{
 		int x = i % gridWidth; int y = i / gridWidth; olc::vf2d xy = { (float)x,(float)y };
 
 		bool isThisHighlighted = ((GetMousePositionInXY().x == x && (GetMousePositionInXY().y == y)));
-		olc::Pixel tint = isThisHighlighted ? olc::RED : gridColor;
+		olc::Pixel tint = isThisHighlighted ? selectedTint : gridColor;
 
 		olc::vf2d gridDim = gridTile->sprite->dim();
 		olc::vf2d position = xy * gridDim * tileScale;
@@ -56,7 +57,7 @@ void DnDTool::RenderGrid(float amountOfColumns, float tileWidthRatio, float tile
 			olc::vf2d centerOfRotation = selection->sprite->dim() / 2;
 			olc::vf2d selectionPosition = (xy * gridDim * tileableSize + centeringModifier) / tileWidthRatio;
 
-			RenderImage(selection, selectionPosition, scale, olc::RED, selectionAngle, centerOfRotation);
+			RenderImage(selection, selectionPosition, scale, selectedTint, selectionAngle, centerOfRotation);
 		}
 		RenderImage(gridTile, position, tileScale, tint);
 	}
@@ -120,6 +121,12 @@ void DnDTool::RenderCursor()
 			int index = GetMouse(1).bHeld ? 1 : 0;
 			DrawDecal(position, cursors[index], scale);
 			DrawDecal({GetMouseX() - (float)eraserMask->GetWidth() / 2 , GetMouseY() - (float)eraserMask->GetHeight()/2}, drawIndicator, { 1,1 });
+			break;
+		}
+		case InteractionMode::BUILD:
+		{
+			int index = buildMode == BUILDMODE_NONE ? 9 : 6;
+			DrawDecal(position, cursors[index], scale);
 			break;
 		}
 	}

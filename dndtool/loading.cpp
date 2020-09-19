@@ -146,50 +146,65 @@ void DnDTool::LoadUI()
 		(
 			std::vector<window>
 			{
-				window //The UI frame. Window[0] is always the frame
+				/*0*/window //The UI frame. Window[0] is always the frame
 				(
 					{
-						button(buttonIcons[3], {752,15}, [&]() 
+					/*0*/button(buttonIcons[3], {752,15}, [&]()
 							{
-								interactionMode = InteractionMode::MOVE; 
+								interactionMode = MOVE;
 								screens[0].windows[0].buttons[0].currentIcon = 2;
 								screens[0].windows[0].buttons[1].currentIcon = 0;
 								screens[0].windows[0].buttons[2].currentIcon = 0;
+								screens[0].windows[0].buttons[7].currentIcon = 0;
 								if (selectedToken && selectedToken->icon)
 								{
 									screens[0].windows[0].buttons[4].active = true;
 									screens[0].windows[0].buttons[5].active = true;
 									screens[0].windows[0].buttons[6].active = true;
 								}
+								screens[0].windows[0].buttons[8].active = false;
+								screens[0].windows[0].buttons[9].active = false;
+								screens[0].windows[0].buttons[10].active = false;
+								screens[0].windows[0].buttons[11].active = false;
 							}),
-						button(buttonIcons[1], {752,15 + 17},[&]() 
+					/*1*/button(buttonIcons[1], {752,15 + 17},[&]()
 							{
-								interactionMode = InteractionMode::DRAW; 
+								interactionMode = DRAW;
 								screens[0].windows[0].buttons[0].currentIcon = 0;
 								screens[0].windows[0].buttons[1].currentIcon = 2;
 								screens[0].windows[0].buttons[2].currentIcon = 0;
+								screens[0].windows[0].buttons[7].currentIcon = 0;
 								screens[0].windows[0].buttons[4].active = false;
 								screens[0].windows[0].buttons[5].active = false;
 								screens[0].windows[0].buttons[6].active = false;
+								screens[0].windows[0].buttons[8].active = false;
+								screens[0].windows[0].buttons[9].active = false;
+								screens[0].windows[0].buttons[10].active = true;
+								screens[0].windows[0].buttons[11].active = true;
 							}),
-						button(buttonIcons[2], {752,15 + 17 * 2},[&]() 
+					/*2*/button(buttonIcons[2], {752,15 + 17 * 2},[&]()
 							{
-								interactionMode = InteractionMode::MEASURE; 
+								interactionMode = MEASURE;
 								screens[0].windows[0].buttons[0].currentIcon = 0;
 								screens[0].windows[0].buttons[1].currentIcon = 0;
 								screens[0].windows[0].buttons[2].currentIcon = 2;
+								screens[0].windows[0].buttons[7].currentIcon = 0;
 								screens[0].windows[0].buttons[4].active = false;
 								screens[0].windows[0].buttons[5].active = false;
 								screens[0].windows[0].buttons[6].active = false;
+								screens[0].windows[0].buttons[8].active = false;
+								screens[0].windows[0].buttons[9].active = false;
+								screens[0].windows[0].buttons[10].active = false;
+								screens[0].windows[0].buttons[11].active = false;
 							}),
-						button(buttonIcons[5], {752,15 + 17 * 3},[&]() { screens[0].windows[1].ToggleReveal(); }),
-						button(buttonIcons[8], {4,92}, [&]() {TEA(selectedToken->angle, -90, ? 0 : -90); }, false),
-						button(buttonIcons[4], {4 + 16,92},[&]() {selectedToken->dead = !selectedToken->dead; }, false),
-						button(buttonIcons[9], {4 + 16 * 2,92},[&]() 
+					/*3*/button(buttonIcons[5], {752,15 + 17 * 4},[&]() { screens[0].windows[1].ToggleReveal(); }), //Reveal character selection
+					/*4*/button(buttonIcons[8], {4,92}, [&]() {TEA(selectedToken->angle, -90, ? 0 : -90); }, false), //Down selected token
+					/*5*/button(buttonIcons[4], {4 + 16,92},[&]() {selectedToken->dead = !selectedToken->dead; }, false), //Kill selected token
+					/*6*/button(buttonIcons[9], {4 + 16 * 2,92},[&]()
 						{
-							forall (i, 0, maps[currentMap].characters.size()) 
-							{ 
-								if (maps[currentMap].characters[i].position == selectedToken->position) 
+							forall(i, 0, maps[currentMap].characters.size())
+							{
+								if (maps[currentMap].characters[i].position == selectedToken->position)
 								{
 									maps[currentMap].characters.erase(maps[currentMap].characters.begin() + i);
 									selectedTile = -1;
@@ -199,17 +214,63 @@ void DnDTool::LoadUI()
 									break;
 								}
 							}
-							selectedToken = nullptr; 
-						}, false)
-
+							selectedToken = nullptr;
+						}, false), //Erase selected token
+					/*7*/button(buttonIcons[12], {752,15 + 17 * 3},[&]() //Change to Build mode
+							{
+								interactionMode = BUILD; 
+								buildMode = BUILDMODE_NONE;
+								screens[0].windows[0].buttons[0].currentIcon = 0;
+								screens[0].windows[0].buttons[1].currentIcon = 0;
+								screens[0].windows[0].buttons[2].currentIcon = 0;
+								screens[0].windows[0].buttons[7].currentIcon = 2;
+								screens[0].windows[0].buttons[4].active = false;
+								screens[0].windows[0].buttons[5].active = false;
+								screens[0].windows[0].buttons[6].active = false;
+								screens[0].windows[0].buttons[8].currentIcon = 0;
+								screens[0].windows[0].buttons[8].active = true;
+								screens[0].windows[0].buttons[9].active = true;
+								screens[0].windows[0].buttons[10].active = false;
+								screens[0].windows[0].buttons[11].active = false;
+							}),
+					/*8*/button(buttonIcons[13], {4, 92},[&]()
+							{
+								buildMode = BUILDMODE_LINKS;
+								screens[0].windows[0].buttons[8].currentIcon = 2;
+								screens[0].windows[0].buttons[9].currentIcon = 0;
+							}, false),
+					/*9*/button(buttonIcons[14], {4 + 16, 92},[&]()
+							{
+								buildMode = BUILDMODE_GRID;
+								screens[0].windows[0].buttons[8].currentIcon = 0;
+								screens[0].windows[0].buttons[9].currentIcon = 2;
+							}, false),
+					/*10*/button(buttonIcons[10], {4, 92},[&]()
+							{
+								FillFog(olc::BLACK);
+							}, false),
+					/*11*/button(buttonIcons[11], {4 + 16, 92},[&]()
+							{
+								FillFog(olc::BLANK);
+							}, false)
 					},new olc::Decal(new olc::Sprite("./Assets/UI/Windows/UI_Border.png")),
 					{0,0}, "", {0,0}
 				),
-				window //The token selection window. Appears when a button is pressed
+				/*1*/window //The token selection window. Appears when a button is pressed
 				(
 					{GetTokenButtons()}, //Fill up the window with all of the tokens
 					new olc::Decal(new olc::Sprite("./Assets/UI/Windows/Window_TokenSelect.png")),
-					{width, 15}, "", {width - 100, 15}, 3
+					{width, 15}, "", {width - 100, 15}, 3.0f
+				),
+				/*2*/window //The link creation window
+				(
+					{
+						button(buttonIcons_Special[4], {54,18},[&]() 
+							{
+								screens[0].windows[2].state = window::Window_State::WINDOW_INACTIVE;
+							})
+					}, new olc::Decal(new olc::Sprite("./Assets/UI/Windows/Window_CreateLink.png")),
+							{0,0}, "", window::Window_State::WINDOW_INACTIVE
 				)
 			},
 			{0,0}

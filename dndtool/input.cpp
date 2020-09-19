@@ -81,16 +81,32 @@ void DnDTool::CheckInput()
 			olc::vf2d UIscale = { width / screens[currentUI].FrameWidth(), height / screens[currentUI].FrameHeight() };
 			switch (interactionMode)
 			{
-			case InteractionMode::MOVE:
-			{
-				PickUpToken(); break;
-			}
-			case InteractionMode::MEASURE:
-			{
-				//deselect by right clicking
-				int gridWidth = (maps[currentMap].Width() * (scaleUnaffectedByUI / commonDivisor));
-				selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
-			}
+				case MOVE:
+				{
+					PickUpToken(); break;
+				}
+				case MEASURE:
+				{
+					//deselect by right clicking
+					int gridWidth = (maps[currentMap].Width() * (scaleUnaffectedByUI / commonDivisor));
+					selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x; break;
+				}
+				case BUILD:
+				{
+					int gridWidth = (maps[currentMap].Width() * (scaleUnaffectedByUI / commonDivisor));
+					olc::vi2d position = GetMousePositionInXY();
+					forall(i, 0, maps[currentMap].links.size())
+					{
+						if (position == maps[currentMap].links[i].position)
+						{
+							return;
+						}
+					}
+					selectedTile = GetMousePositionInXY().y * gridWidth + GetMousePositionInXY().x;
+					screens[0].windows[2].state = window::Window_State::WINDOW_NONE;
+					screens[0].windows[2].position = { (float)GetMouseX(),(float) GetMouseY() };
+					break;
+				}
 			}
 		}
 		if (GetMouse(0).bHeld)

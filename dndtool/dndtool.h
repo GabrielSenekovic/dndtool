@@ -15,7 +15,11 @@ class DnDTool : public olc::PixelGameEngine
 		EVENT_NONE, 
 		EVENT_INQUIRY //Will open the inquiry window
 	};
-	std::pair<Event, bool*> currentEvent = std::pair<Event, bool*>(Event::EVENT_NONE,nullptr);
+	std::pair<Event, bool*> currentEvent = std::pair<Event, bool*>(EVENT_NONE,nullptr);
+	enum BuildMode
+	{
+		BUILDMODE_NONE,BUILDMODE_LINKS, BUILDMODE_GRID
+	};
 	enum DrawMode
 	{
 		DRAWMODE_DRAW, DRAWMODE_ERASE, DRAWMODE_FILL
@@ -27,7 +31,7 @@ class DnDTool : public olc::PixelGameEngine
 		MEASURE, //Measure distances between tiles
 		BUILD //Place out and delete tokens and tiles before battle. Tokens are selectable from a list on the side
 	};
-	InteractionMode interactionMode = InteractionMode::MOVE;
+	InteractionMode interactionMode = MOVE;
 
 	struct button
 	{
@@ -53,18 +57,20 @@ class DnDTool : public olc::PixelGameEngine
 		{
 			WINDOW_NONE,
 			WINDOW_REVEAL,
-			WINDOW_DISAPPEAR
+			WINDOW_DISAPPEAR,
+			WINDOW_INACTIVE
 		};
 		//This struct takes care of each image that carries buttons
 		olc::vf2d position; olc::vf2d unrevealedPosition; olc::vf2d revealedPosition;
 		std::vector<button> buttons;
 		olc::Decal* background;
 		std::string text;
-		Window_State state;
+		Window_State state = WINDOW_NONE;
 		float speed = 1;
 
 		window(const std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, olc::vf2d revealedPosition_in);
 		window(const std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, olc::vf2d revealedPosition_in, float speed_in);
+		window(const std::vector<button> buttons_in, olc::Decal* background_in, olc::vf2d position_in, std::string text_in, Window_State activity_in);
 
 		void Update(float fElapsedTime);
 		void Move(float fElapsedTime, olc::vf2d& a, olc::vf2d b, olc::vf2d source);
@@ -165,6 +171,8 @@ class DnDTool : public olc::PixelGameEngine
 	olc::Decal* drawIndicator = nullptr;
 	//MEASURE
 	olc::Decal* measuringLine = nullptr;
+	//BUILD
+	BuildMode buildMode = BUILDMODE_NONE;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	std::vector<map> maps;
