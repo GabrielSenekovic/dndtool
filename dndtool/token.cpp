@@ -49,18 +49,20 @@ void DnDTool::token::RenderText(DnDTool* dndTool, float tileWidthRatio, float ti
 }
 bool DnDTool::token::Save(FILE* file, std::vector<uint8_t>& fileData, uint8_t& bytesWritten)
 {
-	fileData.resize(bytesWritten + name.size() + 1 + sizeof(int) + sizeof(float)*3 + sizeof(bool));
+	fileData.resize(bytesWritten + name.size() + 1 + sizeof(int)*4 + sizeof(bool));
 
 	memcpy(fileData.data() + bytesWritten, name.data(), name.size());
 	bytesWritten += name.size() + 1;
 	memcpy(fileData.data() + bytesWritten, &icon_index, sizeof(int));
 	bytesWritten += sizeof(int);
-	memcpy(fileData.data() + bytesWritten, &angle, sizeof(float));
-	bytesWritten += sizeof(float);
-	memcpy(fileData.data() + bytesWritten, &position.x, sizeof(float));
-	bytesWritten += sizeof(float);
-	memcpy(fileData.data() + bytesWritten, &position.y, sizeof(float));
-	bytesWritten += sizeof(float);
+	int temp = angle;
+	memcpy(fileData.data() + bytesWritten, &temp, sizeof(int));
+	bytesWritten += sizeof(int);
+	int temp_x = position.x; int temp_y = position.y;
+	memcpy(fileData.data() + bytesWritten, &temp_x, sizeof(int));
+	bytesWritten += sizeof(int);
+	memcpy(fileData.data() + bytesWritten, &temp_y, sizeof(int));
+	bytesWritten += sizeof(int);
 	memcpy(fileData.data() + bytesWritten, &dead, sizeof(bool));
 	bytesWritten += sizeof(bool);
 

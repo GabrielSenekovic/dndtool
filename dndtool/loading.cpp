@@ -4,7 +4,7 @@ bool DnDTool::OnUserCreate()
 	LoadDecals();
 	LoadCharacters();
 	LoadUI();
-	LoadMap("MapName");
+	LoadMap("");
 	ConstructMaps();
 	ToggleUI();
 	return true;
@@ -155,7 +155,7 @@ void DnDTool::LoadUI()
 								screens[0].windows[0].buttons[0].currentIcon = 2;
 								screens[0].windows[0].buttons[1].currentIcon = 0;
 								screens[0].windows[0].buttons[2].currentIcon = 0;
-								if (selectedToken->icon != nullptr)
+								if (selectedToken && selectedToken->icon)
 								{
 									screens[0].windows[0].buttons[4].active = true;
 									screens[0].windows[0].buttons[5].active = true;
@@ -269,16 +269,16 @@ void DnDTool::LoadMap(std::string name_in)
 		bytesRead += strlen(token_name.c_str()) + 1;
 		int token_icon_index = *(fileData.data() + bytesRead);
 		bytesRead += sizeof(int);
-		float token_angle = *(fileData.data() + bytesRead);
-		bytesRead += sizeof(float);
-		float token_x = *(fileData.data() + bytesRead);
-		bytesRead += sizeof(float);
-		float token_y = *(fileData.data() + bytesRead);
-		bytesRead += sizeof(float);
-		olc::vf2d token_position = { token_x, token_y };
-		bool token_dead = *(fileData.data() + bytesRead);
+		int token_angle = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(int);
+		int token_x = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(int);
+		int token_y = *(fileData.data() + bytesRead);
+		bytesRead += sizeof(int);
+		olc::vf2d token_position = { (float)token_x, (float)token_y };
+		bool token_dead = (bool)*(fileData.data() + bytesRead);
 		bytesRead += sizeof(bool);
-		tokens.push_back(token(token_name, icons[token_icon_index], token_icon_index, token_angle, token_position, token_dead));
+		tokens.push_back(token(token_name, icons[token_icon_index], token_icon_index, (float)token_angle, token_position, token_dead));
 	}
 
 	maps.push_back
